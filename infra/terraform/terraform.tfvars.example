@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars (gitignored) and fill API keys when you have them.
+# terraform apply -var-file=terraform.tfvars
+
+aws_region  = "us-east-1"
+project_name = "financial-copilot"
+
+openai_api_key    = ""
+anthropic_api_key = ""
+cohere_api_key    = ""

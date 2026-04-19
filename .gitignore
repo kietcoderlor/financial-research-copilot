@@ -12,3 +12,17 @@ build/
 .idea/
 .vscode/
 pgdata/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+infra/terraform/terraform.tfvars
