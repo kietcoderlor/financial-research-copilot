@@ -11,7 +11,7 @@ resource "aws_elasticache_serverless_cache" "main" {
       maximum = 1
       unit    = "GB"
     }
-    ecpu_per_seconds {
+    ecpu_per_second {
       maximum = 1000
     }
   }
