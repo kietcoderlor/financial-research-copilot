@@ -24,7 +24,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 | Phase | Tasks | Done | Status |
 |-------|-------|------|--------|
-| **P1** Foundation & Infra | 16 | 5 | In progress |
+| **P1** Foundation & Infra | 16 | 8 | In progress |
 | **P2** Ingestion Pipeline | 15 | 0 | Not started |
 | **P3** Retrieval Layer | 9 | 0 | Not started |
 | **P4** Generation & Citations | 9 | 0 | Not started |
@@ -40,7 +40,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 | ID | Task | Scope | Deps | Done |
 |----|------|-------|------|------|
-| P1-1 | **AWS account & IAM** – Create dedicated IAM user with programmatic access. Attach policies: S3, RDS, SQS, ECS, ElastiCache, CloudWatch, ECR. Test with `aws sts get-caller-identity`. Set default region `us-east-1`. | S | — | TODO |
+| P1-1 | **AWS account & IAM** – Create dedicated IAM user with programmatic access. Attach policies: S3, RDS, SQS, ECS, ElastiCache, CloudWatch, ECR. Test with `aws sts get-caller-identity`. Set default region `us-east-1`. | S | — | DONE |
 | P1-2 | **VPC & networking** – Create VPC with 2 private subnets + 1 public subnet. Attach Internet Gateway. Create NAT Gateway in public subnet. Create 3 security groups: `sg-backend` (inbound 8000 from ALB), `sg-rds` (inbound 5432 from sg-backend only), `sg-redis` (inbound 6379 from sg-backend only). | M | P1-1 | TODO |
 | P1-3 | **S3 buckets** – Create `financial-copilot-raw-docs` (versioning on, block all public access). Test: `aws s3 cp test.txt s3://financial-copilot-raw-docs/test.txt`. | S | P1-1 | TODO |
 | P1-4 | **SQS queues** – Create standard queue `ingestion-queue`. Create dead letter queue `ingestion-dlq`. Configure `ingestion-queue` to forward to DLQ after 3 failed receives. Set visibility timeout = 600s. Test: send + receive a message via AWS CLI. | S | P1-1 | TODO |
@@ -51,11 +51,30 @@ This document breaks down the Financial Research Copilot project into **concrete
 | P1-9 | **FastAPI skeleton** – Create `GET /health` returning `{"status": "ok", "version": "0.1.0"}`. Add structured JSON logging middleware (logs `request_id`, `path`, `method`, `status_code`, `duration_ms` per request). Add global exception handler returning `{"error": "...", "request_id": "..."}`. Configure settings via `pydantic-settings` reading from env vars. | M | P1-8 | DONE |
 | P1-10 | **Dockerfile** – Write Dockerfile using `python:3.11-slim`, non-root user, no dev dependencies in image. Confirm `docker build` succeeds locally. | S | P1-9 | DONE |
 | P1-11 | **Docker Compose (local dev)** – Write `docker-compose.yml` with services: `api` (FastAPI), `postgres` (ankane/pgvector image), `redis`, `elasticmq` (local SQS). Confirm `docker compose up` starts all services without errors and `/health` responds. | M | P1-10 | DONE |
-| P1-12 | **ECR repository** – Create ECR repository `financial-copilot-api`. Build Docker image locally, tag, and push to ECR. Confirm image appears in ECR console. | S | P1-10 | TODO |
-| P1-13 | **ECS cluster + task definition** – Create ECS cluster `financial-copilot`. Write task definition: container from ECR, 512 CPU / 1024 MB memory, env vars from Secrets Manager. | M | P1-7, P1-12 | TODO |
+| P1-12 | **ECR repository** – Create ECR repository `financial-copilot-api`. Build Docker image locally, tag, and push to ECR. Confirm image appears in ECR console. | S | P1-10 | DONE |
+| P1-13 | **ECS cluster + task definition** – Create ECS cluster `financial-copilot`. Write task definition: container from ECR, 512 CPU / 1024 MB memory, env vars from Secrets Manager. | M | P1-12 | DONE |
 | P1-14 | **ALB + ECS service** – Create Application Load Balancer in public subnet, listener port 80, forward to ECS target group. Create ECS service (Fargate, 1 desired task, private subnet, `sg-backend`). Confirm `curl http://<alb-dns>/health` returns `{"status": "ok"}`. | M | P1-13 | TODO |
 | P1-15 | **CloudWatch log group** – Confirm ECS task ships logs to `/ecs/financial-copilot`. Run a sample query in CloudWatch Logs Insights confirming structured JSON is parseable. | S | P1-14 | TODO |
-| P1-16 | **GitHub Actions CI** – Add `.github/workflows/deploy.yml`: on push to `main`, build Docker image, push to ECR, force new ECS deployment. Store `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` as GitHub Actions secrets. | M | P1-14 | DONE |
+| P1-16 | **GitHub Actions CI** – Add `.github/workflows/deploy.yml`: on push to `main`, build Docker image, push to ECR, force new ECS deployment. Store `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` as GitHub Actions secrets. | M | P1-13 | DONE |
+
+**Bootstrap note (P1-13 vs P1-7):** Task definitions *should* load secrets from Secrets Manager once **P1-7** exists. A temporary setup may use plain environment variables in the task definition only until P1-7 is completed — rotate any exposed values and switch to Secrets Manager before Phase 2.
+
+### Phase 1 — What is done vs what remains
+
+| Area | Status |
+|------|--------|
+| IAM + `us-east-1`; GitHub Actions secrets; `aws sts get-caller-identity` | Done |
+| ECR repo `financial-copilot-api`; CI build/push `:latest` | Done |
+| ECS Fargate: cluster `financial-copilot`, service `financial-copilot-api`, task 512/1024, deploy workflow green | Done |
+| VPC + NAT + SG layout (**P1-2**) | Not done — use **`infra/terraform`** or recreate networking to match the spec |
+| S3 raw bucket, SQS + DLQ (**P1-3**, **P1-4**) | Not done — required before ingestion (Phase 2) |
+| RDS Postgres 15 + **pgvector** (**P1-5**) | Not done |
+| ElastiCache Redis (**P1-6**) | Not done |
+| Secrets Manager JSON + ECS execution/task IAM (**P1-7**) | Not done — align with `app/core/config.py` env names |
+| ALB + private ECS + `curl` via ALB (**P1-14**) | Not done (optional defer: public task IP until ALB exists) |
+| Log group `/ecs/financial-copilot` + Logs Insights JSON query (**P1-15**) | Verify after log driver is fixed to that group |
+
+**Fastest path to finish the written Phase 1 definition of done:** run **`terraform apply`** in `infra/terraform` (creates P1-2–P1-7, P1-14–P1-15 in one pass). Resolve duplicate names first (e.g. delete empty manually-created ECS resources or import into Terraform). Then: `CREATE EXTENSION vector` on RDS, wire Secrets Manager into the task definition, attach ALB, confirm `curl http://<alb-dns>/health`.
 
 **Definition of done (Phase 1):** `curl http://<alb-dns>/health` returns 200 OK from ECS. `docker compose up` starts full local stack. All secrets in Secrets Manager, no credentials in code. GitHub Actions deploys on push to `main`. CloudWatch shows structured JSON logs.
 
