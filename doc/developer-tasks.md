@@ -74,7 +74,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 | ALB + private ECS + `curl` via ALB (**P1-14**) | Not done (optional defer: public task IP until ALB exists) |
 | Log group `/ecs/financial-copilot` + Logs Insights JSON query (**P1-15**) | Verify after log driver is fixed to that group |
 
-**Fastest path to finish the written Phase 1 definition of done:** run **`terraform apply`** in `infra/terraform` (creates P1-2–P1-7, P1-14–P1-15 in one pass). Resolve duplicate names first (e.g. delete empty manually-created ECS resources or import into Terraform). Then: `CREATE EXTENSION vector` on RDS, wire Secrets Manager into the task definition, attach ALB, confirm `curl http://<alb-dns>/health`.
+**Fastest path to finish the written Phase 1 definition of done:** follow **`infra/terraform/README.md` → “If you already created ECR + ECS in the console”**: delete the manual ECS **service** `financial-copilot-api`, **`terraform import`** ECR + cluster (and log group if it exists), then **`terraform apply`**. That provisions P1-2–P1-7 and P1-14–P1-15 in one pass. Then run **`CREATE EXTENSION vector`** on RDS and **`curl http://<alb-dns>/health`**.
 
 **Definition of done (Phase 1):** `curl http://<alb-dns>/health` returns 200 OK from ECS. `docker compose up` starts full local stack. All secrets in Secrets Manager, no credentials in code. GitHub Actions deploys on push to `main`. CloudWatch shows structured JSON logs.
 

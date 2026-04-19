@@ -23,6 +23,68 @@ terraform plan -out=tfplan
 terraform apply tfplan
 ```
 
+## If you already created ECR + ECS in the console (GitHub deploy works)
+
+Terraform also defines **ECR**, **ECS cluster**, **ECS service**, **task definition**, and **CloudWatch log group** with the same names. Before the first `terraform apply` you must avoid **name collisions** on the ECS **service** (Terraform must own `aws_ecs_service.api`).
+
+### Step 1 — Delete the manually created ECS service (keep the cluster)
+
+1. **ECS** → cluster `financial-copilot` → service `financial-copilot-api` → **Delete** (check **Force delete** if offered so tasks drain faster).
+2. Wait until the service is gone. **Do not** delete the cluster `financial-copilot` if you want to keep the same name (optional: you may delete the whole cluster and skip the cluster import in Step 2).
+
+### Step 2 — Import existing resources into Terraform state
+
+From `infra/terraform` (after `terraform init`):
+
+```bash
+terraform import aws_ecr_repository.api financial-copilot-api
+terraform import aws_ecs_cluster.main financial-copilot
+```
+
+If you already created the log group **`/ecs/financial-copilot`**:
+
+```bash
+terraform import aws_cloudwatch_log_group.ecs /ecs/financial-copilot
+```
+
+On Windows PowerShell you can run **`.\import-existing-bootstrap.ps1`** in this folder (same commands).
+
+If an import errors with **“cannot import non-existent”**, skip that import and let Terraform create the resource instead.
+
+### Step 3 — Plan and apply
+
+```bash
+terraform plan -out=tfplan
+terraform apply tfplan
+```
+
+This creates the remaining Phase 1 pieces: **VPC, NAT, SGs, S3, SQS, RDS, Redis, Secrets Manager, ALB**, and recreates the **ECS service** attached to the ALB (private subnets, no public task IP). Expect **15–40+ minutes** (RDS/ElastiCache).
+
+### Step 4 — Image and CI
+
+After apply, ensure **`:latest`** exists in ECR (push locally or re-run **Deploy API** on GitHub). Then confirm:
+
+```bash
+terraform output alb_dns_name
+curl http://$(terraform output -raw alb_dns_name)/health
+```
+
+PowerShell:
+
+```powershell
+$alb = terraform output -raw alb_dns_name
+curl "http://$alb/health"
+```
+
+### Step 5 — pgvector (still manual)
+
+Connect to RDS from a host that can reach it, then:
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+SELECT * FROM pg_extension WHERE extname = 'vector';
+```
+
 Optional keys (stored in Secrets Manager, read by ECS):
 
 ```bash
