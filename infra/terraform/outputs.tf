@@ -34,7 +34,7 @@ output "next_steps" {
   description = "Post-apply checklist."
   value       = <<-EOT
     1) Authenticate Docker to ECR, build the API image, tag :latest, and push (see infra/terraform/README.md).
-    2) After the image exists, ECS tasks should pass health checks; verify: curl http://${aws_lb.main.dns_name}/health
+    2) After the image exists, ECS tasks should pass health checks; verify: curl http://$(terraform output -raw alb_dns_name)/health
     3) Enable pgvector on RDS from a host that can reach the DB (bastion/VPN): CREATE EXTENSION IF NOT EXISTS vector;
     4) Add GitHub Actions secrets AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY for deploy.yml.
   EOT
