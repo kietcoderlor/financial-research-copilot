@@ -14,6 +14,16 @@ This stack provisions **P1-2 through P1-15** from `doc/developer-tasks.md`: VPC 
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) v2
 - `aws configure` (region `us-east-1` recommended to match `.github/workflows/deploy.yml`)
 
+### Windows: `terraform` not recognized (PATH)
+
+If `winget install Hashicorp.Terraform` succeeded but **Cursor / PowerShell** still says `terraform` is not recognized, run with the full path once, or add the folder that contains `terraform.exe` to your **User PATH**, then **restart Cursor** (or sign out of Windows).
+
+To locate the binary after a WinGet install:
+
+```powershell
+Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Recurse -Filter "terraform.exe" | Select-Object -First 1 -ExpandProperty FullName
+```
+
 ## Apply
 
 ```bash
