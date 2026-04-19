@@ -141,6 +141,50 @@ Or push from CI after GitHub secrets are set.
 - CloudWatch log group `/ecs/financial-copilot` — Logs Insights on JSON fields from the app middleware
 - S3 / SQS: use outputs and the AWS console
 
+## Troubleshooting failed `apply`
+
+### 1) `AccessDenied` on `elasticloadbalancing:ModifyLoadBalancerAttributes` / `ModifyTargetGroupAttributes`
+
+The IAM user you use for Terraform (e.g. `financial-copilot-cli`) **does not have ELB (v2) permissions**. Terraform needs to create/update load balancers and target groups.
+
+**Quick fix (typical dev account):** in **IAM → Users → (your user) → Add permissions → Attach policies directly**, add the AWS managed policy:
+
+- **`ElasticLoadBalancingFullAccess`**  
+  ARN: `arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess`
+
+Then run `.\tf.ps1 apply tfplan` again (or `plan` then `apply`). For production, replace this with a tighter custom policy that only allows the ELB API calls your stack needs.
+
+### 2) `RepositoryAlreadyExistsException` (ECR)
+
+The repository `financial-copilot-api` already exists but is **not in Terraform state**. Import it, then plan/apply:
+
+```powershell
+.\tf.ps1 import aws_ecr_repository.api financial-copilot-api
+.\tf.ps1 plan -out=tfplan
+.\tf.ps1 apply tfplan
+```
+
+### 3) ECS `InvalidParameterException` … *idempotent* … *inconsistent arguments*
+
+A cluster named `financial-copilot` **already exists** (often created earlier in the Console with different options than Terraform’s `CreateCluster` body). **Import** the cluster into state:
+
+```powershell
+.\tf.ps1 import aws_ecs_cluster.main financial-copilot
+.\tf.ps1 plan -out=tfplan
+.\tf.ps1 apply tfplan
+```
+
+### 4) ALB / target group left over from a **partial** apply
+
+If Terraform (or you) already created an ALB / target group in AWS and plans keep failing until state matches AWS, import using the **ARNs from the error message**:
+
+```powershell
+.\tf.ps1 import aws_lb.main "arn:aws:elasticloadbalancing:us-east-1:177697910430:loadbalancer/app/financial-copilot-alb/eaa72dcda779f509"
+.\tf.ps1 import aws_lb_target_group.api "arn:aws:elasticloadbalancing:us-east-1:177697910430:targetgroup/financial-copilot-api-tg/cb95e8d780ab18e3"
+```
+
+(Replace account ID / suffixes if yours differ.) After **(1)** IAM is fixed, you may not need these imports unless state and AWS diverged.
+
 ## Costs
 
 NAT Gateway, RDS, ElastiCache Serverless, Fargate, and ALB incur charges. Run `terraform destroy` in a dev account when finished experimenting.
