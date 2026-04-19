@@ -16,7 +16,25 @@ This stack provisions **P1-2 through P1-15** from `doc/developer-tasks.md`: VPC 
 
 ### Windows: `terraform` not recognized (PATH)
 
-If `winget install Hashicorp.Terraform` succeeded but **Cursor / PowerShell** still says `terraform` is not recognized, run with the full path once, or add the folder that contains `terraform.exe` to your **User PATH**, then **restart Cursor** (or sign out of Windows).
+If `winget install Hashicorp.Terraform` succeeded but **Cursor / PowerShell** still says `terraform` is not recognized:
+
+1. **Easiest (no restart):** from `infra/terraform`, use the wrapper (reloads PATH + finds WinGet install):
+
+   ```powershell
+   .\tf.ps1 version
+   .\tf.ps1 init
+   .\tf.ps1 plan -out=tfplan
+   .\tf.ps1 apply tfplan
+   ```
+
+2. **Reload PATH in the current terminal**, then try `terraform` again:
+
+   ```powershell
+   $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+   terraform version
+   ```
+
+3. **Fully restart Cursor** (quit app, reopen) or **sign out of Windows** so integrated terminals inherit the updated User PATH.
 
 To locate the binary after a WinGet install:
 
