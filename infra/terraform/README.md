@@ -1,6 +1,6 @@
 # Phase 1 AWS (Terraform)
 
-This stack provisions **P1-2 through P1-15** from `doc/developer-tasks.md`: VPC (2 public + 2 private, NAT), security groups, S3, SQS+DLQ, RDS Postgres 15, ElastiCache Serverless (Redis 7), Secrets Manager (JSON for ECS env), ECR, CloudWatch log group, ECS Fargate + ALB.
+This stack provisions **P1-2 through P1-15** and **P2-12** (ingestion worker) from `doc/developer-tasks.md`: VPC (2 public + 2 private, NAT), security groups, S3, SQS+DLQ, RDS Postgres 15, ElastiCache Serverless (Redis 7), Secrets Manager (JSON for ECS env), ECR, CloudWatch log group, **two** ECS Fargate services (API behind ALB + **SQS worker**, same image), and ALB.
 
 **You still do manually**
 
@@ -131,15 +131,43 @@ docker build -t financial-copilot-api:latest ../../
 docker tag financial-copilot-api:latest ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/financial-copilot-api:latest
 docker push ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/financial-copilot-api:latest
 aws ecs update-service --cluster financial-copilot --service financial-copilot-api --force-new-deployment --region us-east-1
+aws ecs update-service --cluster financial-copilot --service financial-copilot-worker --force-new-deployment --region us-east-1
 ```
 
-Or push from CI after GitHub secrets are set.
+Or push from CI after GitHub secrets are set (workflow updates **both** services).
 
 ## Verify
 
 - `terraform output alb_dns_name` then `curl http://<alb>/health`
-- CloudWatch log group `/ecs/financial-copilot` — Logs Insights on JSON fields from the app middleware
-- S3 / SQS: use outputs and the AWS console
+- CloudWatch log group `/ecs/financial-copilot` — stream prefix **`api`** (FastAPI) and **`worker`** (`python -m app.ingestion.worker`); ECS task role allows **S3 GetObject** on the raw bucket and **SQS** on `ingestion-queue`.
+- S3 / SQS: use outputs and the AWS console (`terraform output ecs_worker_service_name`)
+
+## ECS Exec — kiểm tra RDS / corpus từ trong VPC (không cần bastion VPN)
+
+Terraform bật **`enable_execute_command`** cho service **`financial-copilot-api`** (mặc định `var.project_name = financial-copilot`) và gắn policy **SSM Messages** cho task role. Task API dùng SG **backend** nên **đã kết nối được RDS** giống app.
+
+1. **`terraform apply`** (sau khi pull code mới) để cập nhật cluster + service + IAM.
+2. **Build & push image mới** — `Dockerfile` đã `COPY scripts ./scripts` để chạy `python scripts/check_corpus.py` trong container.
+3. Trên máy bạn: cài [**Session Manager plugin**](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html) (bắt buộc cho `aws ecs execute-command`).
+4. IAM user/role bạn dùng cho AWS CLI cần quyền gọi Exec (xem [ECS Exec IAM](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html#ecs-exec-required-iam-permissions)); tài khoản admin thường đủ.
+
+**PowerShell — lấy task id rồi vào shell trong container `api`:**
+
+```powershell
+$region = "us-east-1"
+$cluster = "financial-copilot"
+$service = "financial-copilot-api"
+$taskArn = aws ecs list-tasks --cluster $cluster --service-name $service --desired-status RUNNING --region $region --query "taskArns[0]" --output text
+aws ecs execute-command --cluster $cluster --task $taskArn --container api --interactive --command "/bin/bash" --region $region
+```
+
+Trong container (đã có `DB_URL`, `SQS_QUEUE_URL`, … từ Secrets Manager):
+
+```bash
+cd /app && python scripts/check_corpus.py
+```
+
+Hoặc `psql` nếu bạn thêm client vào image sau này; hiện tại dùng Python/SQLAlchemy là đủ.
 
 ## Troubleshooting failed `apply`
 

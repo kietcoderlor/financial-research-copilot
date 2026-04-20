@@ -62,3 +62,66 @@ resource "aws_iam_role" "ecs_task" {
     }]
   })
 }
+
+# API (ingest enqueue) + ingestion worker (S3 read, SQS poll) share this task role.
+resource "aws_iam_role_policy" "ecs_task_app" {
+  name = "${var.project_name}-ecs-task-app"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "S3RawRead"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket",
+        ]
+        Resource = [
+          aws_s3_bucket.raw.arn,
+          "${aws_s3_bucket.raw.arn}/*",
+        ]
+      },
+      {
+        Sid    = "SQSIngestion"
+        Effect = "Allow"
+        Action = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:ChangeMessageVisibility",
+          "sqs:GetQueueUrl",
+        ]
+        Resource = [
+          aws_sqs_queue.ingestion.arn,
+          aws_sqs_queue.ingestion_dlq.arn,
+        ]
+      },
+    ]
+  })
+}
+
+# ECS Exec (SSM channel into Fargate tasks) — see infra/terraform/README.md
+resource "aws_iam_role_policy" "ecs_task_exec" {
+  name = "${var.project_name}-ecs-task-exec"
+  role = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "EcsExecSSMMessages"
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel",
+        ]
+        Resource = "*"
+      },
+    ]
+  })
+}

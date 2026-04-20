@@ -24,8 +24,8 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 | Phase | Tasks | Done | Status |
 |-------|-------|------|--------|
-| **P1** Foundation & Infra | 16 | 8 | In progress |
-| **P2** Ingestion Pipeline | 15 | 0 | Not started |
+| **P1** Foundation & Infra | 16 | 16 | Complete |
+| **P2** Ingestion Pipeline | 15 | 15 | Complete |
 | **P3** Retrieval Layer | 9 | 0 | Not started |
 | **P4** Generation & Citations | 9 | 0 | Not started |
 | **P5** Frontend & Integration | 12 | 0 | Not started |
@@ -41,40 +41,39 @@ This document breaks down the Financial Research Copilot project into **concrete
 | ID | Task | Scope | Deps | Done |
 |----|------|-------|------|------|
 | P1-1 | **AWS account & IAM** – Create dedicated IAM user with programmatic access. Attach policies: S3, RDS, SQS, ECS, ElastiCache, CloudWatch, ECR. Test with `aws sts get-caller-identity`. Set default region `us-east-1`. | S | — | DONE |
-| P1-2 | **VPC & networking** – Create VPC with 2 private subnets + 1 public subnet. Attach Internet Gateway. Create NAT Gateway in public subnet. Create 3 security groups: `sg-backend` (inbound 8000 from ALB), `sg-rds` (inbound 5432 from sg-backend only), `sg-redis` (inbound 6379 from sg-backend only). | M | P1-1 | TODO |
-| P1-3 | **S3 buckets** – Create `financial-copilot-raw-docs` (versioning on, block all public access). Test: `aws s3 cp test.txt s3://financial-copilot-raw-docs/test.txt`. | S | P1-1 | TODO |
-| P1-4 | **SQS queues** – Create standard queue `ingestion-queue`. Create dead letter queue `ingestion-dlq`. Configure `ingestion-queue` to forward to DLQ after 3 failed receives. Set visibility timeout = 600s. Test: send + receive a message via AWS CLI. | S | P1-1 | TODO |
-| P1-5 | **RDS Postgres** – Provision RDS Postgres 15 (`db.t3.micro`, 20GB gp2, single-AZ). Place in private subnet, attach `sg-rds`. After provisioning, run `CREATE EXTENSION IF NOT EXISTS vector;`. Confirm with `SELECT * FROM pg_extension WHERE extname = 'vector';`. | M | P1-2 | TODO |
-| P1-6 | **ElastiCache Redis** – Create ElastiCache Serverless cache (Redis-compatible). Place in private subnet, attach `sg-redis`. Note endpoint URL. | S | P1-2 | TODO |
-| P1-7 | **Secrets Manager** – Store all credentials: `DB_URL`, `REDIS_URL`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `COHERE_API_KEY`, `SQS_QUEUE_URL`. Confirm ECS task role can call `secretsmanager:GetSecretValue`. | S | P1-1 | TODO |
+| P1-2 | **VPC & networking** – Create VPC with 2 private subnets + 1 public subnet. Attach Internet Gateway. Create NAT Gateway in public subnet. Create 3 security groups: `sg-backend` (inbound 8000 from ALB), `sg-rds` (inbound 5432 from sg-backend only), `sg-redis` (inbound 6379 from sg-backend only). | M | P1-1 | DONE |
+| P1-3 | **S3 buckets** – Create `financial-copilot-raw-docs` (versioning on, block all public access). Test: `aws s3 cp test.txt s3://financial-copilot-raw-docs/test.txt`. | S | P1-1 | DONE |
+| P1-4 | **SQS queues** – Create standard queue `ingestion-queue`. Create dead letter queue `ingestion-dlq`. Configure `ingestion-queue` to forward to DLQ after 3 failed receives. Set visibility timeout = 600s. Test: send + receive a message via AWS CLI. | S | P1-1 | DONE |
+| P1-5 | **RDS Postgres** – Provision RDS Postgres 15 (`db.t3.micro`, 20GB gp2, single-AZ). Place in private subnet, attach `sg-rds`. After provisioning, run `CREATE EXTENSION IF NOT EXISTS vector;`. Confirm with `SELECT * FROM pg_extension WHERE extname = 'vector';`. | M | P1-2 | DONE |
+| P1-6 | **ElastiCache Redis** – Create ElastiCache Serverless cache (Redis-compatible). Place in private subnet, attach `sg-redis`. Note endpoint URL. | S | P1-2 | DONE |
+| P1-7 | **Secrets Manager** – Store all credentials: `DB_URL`, `REDIS_URL`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `COHERE_API_KEY`, `SQS_QUEUE_URL`. Confirm ECS task role can call `secretsmanager:GetSecretValue`. | S | P1-1 | DONE |
 | P1-8 | **Project repo structure** – Initialize GitHub repo. Create folder structure: `/app/api`, `/app/ingestion`, `/app/retrieval`, `/app/generation`, `/app/models`, `/app/db`, `/app/core`, `/tests`, `Dockerfile`, `docker-compose.yml`, `requirements.txt`. | S | — | DONE |
 | P1-9 | **FastAPI skeleton** – Create `GET /health` returning `{"status": "ok", "version": "0.1.0"}`. Add structured JSON logging middleware (logs `request_id`, `path`, `method`, `status_code`, `duration_ms` per request). Add global exception handler returning `{"error": "...", "request_id": "..."}`. Configure settings via `pydantic-settings` reading from env vars. | M | P1-8 | DONE |
 | P1-10 | **Dockerfile** – Write Dockerfile using `python:3.11-slim`, non-root user, no dev dependencies in image. Confirm `docker build` succeeds locally. | S | P1-9 | DONE |
 | P1-11 | **Docker Compose (local dev)** – Write `docker-compose.yml` with services: `api` (FastAPI), `postgres` (ankane/pgvector image), `redis`, `elasticmq` (local SQS). Confirm `docker compose up` starts all services without errors and `/health` responds. | M | P1-10 | DONE |
 | P1-12 | **ECR repository** – Create ECR repository `financial-copilot-api`. Build Docker image locally, tag, and push to ECR. Confirm image appears in ECR console. | S | P1-10 | DONE |
 | P1-13 | **ECS cluster + task definition** – Create ECS cluster `financial-copilot`. Write task definition: container from ECR, 512 CPU / 1024 MB memory, env vars from Secrets Manager. | M | P1-12 | DONE |
-| P1-14 | **ALB + ECS service** – Create Application Load Balancer in public subnet, listener port 80, forward to ECS target group. Create ECS service (Fargate, 1 desired task, private subnet, `sg-backend`). Confirm `curl http://<alb-dns>/health` returns `{"status": "ok"}`. | M | P1-13 | TODO |
-| P1-15 | **CloudWatch log group** – Confirm ECS task ships logs to `/ecs/financial-copilot`. Run a sample query in CloudWatch Logs Insights confirming structured JSON is parseable. | S | P1-14 | TODO |
+| P1-14 | **ALB + ECS service** – Create Application Load Balancer in public subnet, listener port 80, forward to ECS target group. Create ECS service (Fargate, 1 desired task, private subnet, `sg-backend`). Confirm `curl http://<alb-dns>/health` returns `{"status": "ok"}`. | M | P1-13 | DONE |
+| P1-15 | **CloudWatch log group** – Confirm ECS task ships logs to `/ecs/financial-copilot`. Run a sample query in CloudWatch Logs Insights confirming structured JSON is parseable. | S | P1-14 | DONE |
 | P1-16 | **GitHub Actions CI** – Add `.github/workflows/deploy.yml`: on push to `main`, build Docker image, push to ECR, force new ECS deployment. Store `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` as GitHub Actions secrets. | M | P1-13 | DONE |
 
-**Bootstrap note (P1-13 vs P1-7):** Task definitions *should* load secrets from Secrets Manager once **P1-7** exists. A temporary setup may use plain environment variables in the task definition only until P1-7 is completed — rotate any exposed values and switch to Secrets Manager before Phase 2.
+**Bootstrap note (historical):** ECS task definitions load secrets from Secrets Manager (**P1-7**). If you ever used plain env vars in a task definition during bootstrap, rotate those values and rely on Secrets Manager only before Phase 2.
 
-### Phase 1 — What is done vs what remains
+### Phase 1 — Status (complete)
 
 | Area | Status |
 |------|--------|
 | IAM + `us-east-1`; GitHub Actions secrets; `aws sts get-caller-identity` | Done |
-| ECR repo `financial-copilot-api`; CI build/push `:latest` | Done |
-| ECS Fargate: cluster `financial-copilot`, service `financial-copilot-api`, task 512/1024, deploy workflow green | Done |
-| VPC + NAT + SG layout (**P1-2**) | Not done — use **`infra/terraform`** or recreate networking to match the spec |
-| S3 raw bucket, SQS + DLQ (**P1-3**, **P1-4**) | Not done — required before ingestion (Phase 2) |
-| RDS Postgres 15 + **pgvector** (**P1-5**) | Not done |
-| ElastiCache Redis (**P1-6**) | Not done |
-| Secrets Manager JSON + ECS execution/task IAM (**P1-7**) | Not done — align with `app/core/config.py` env names |
-| ALB + private ECS + `curl` via ALB (**P1-14**) | Not done (optional defer: public task IP until ALB exists) |
-| Log group `/ecs/financial-copilot` + Logs Insights JSON query (**P1-15**) | Verify after log driver is fixed to that group |
+| VPC + NAT + SGs via **`infra/terraform`** (**P1-2**) | Done |
+| S3 raw bucket, SQS + DLQ (**P1-3**, **P1-4**) | Done |
+| RDS Postgres 15 + **pgvector** on prod DB (**P1-5**) | Done (`vector` extension verified) |
+| ElastiCache Redis (**P1-6**) | Done |
+| Secrets Manager + ECS task/execution roles (**P1-7**) | Done |
+| ECR `financial-copilot-api`; CI build/push; ECS Fargate service (**P1-12**–**P1-13**, **P1-16**) | Done |
+| ALB + `curl` `/health` via ALB (**P1-14**) | Done |
+| Log group `/ecs/financial-copilot` + structured JSON logs (**P1-15**) | Done |
 
-**Fastest path to finish the written Phase 1 definition of done:** follow **`infra/terraform/README.md` → “If you already created ECR + ECS in the console”**: delete the manual ECS **service** `financial-copilot-api`, **`terraform import`** ECR + cluster (and log group if it exists), then **`terraform apply`**. That provisions P1-2–P1-7 and P1-14–P1-15 in one pass. Then run **`CREATE EXTENSION vector`** on RDS and **`curl http://<alb-dns>/health`**.
+**Ops hygiene (post Phase 1):** If a temporary EC2 bastion or extra RDS inbound rule (5432 from bastion SG) was used for `CREATE EXTENSION`, terminate the bastion and remove that inbound rule so only **`financial-copilot-backend`** may reach RDS on 5432. Rotate the DB master password if it was ever exposed (screenshots, chat, committed notes).
 
 **Definition of done (Phase 1):** `curl http://<alb-dns>/health` returns 200 OK from ECS. `docker compose up` starts full local stack. All secrets in Secrets Manager, no credentials in code. GitHub Actions deploys on push to `main`. CloudWatch shows structured JSON logs.
 
@@ -84,23 +83,27 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 *Goal: upload a document to S3 → worker parses, chunks, embeds, writes to pgvector. Corpus queryable at DB level by end of phase.*
 
+**Batch 1 (in repo):** Alembic + revision `p2_batch1_001` (tables + indexes). Run migrations yourself: `docker compose up -d postgres` then `docker compose run --rm api python -m alembic upgrade head`, or `.\scripts\alembic-upgrade.ps1` with `DB_URL` pointing at Compose/RDS (sync URL uses `postgresql://` internally). On RDS, use the same command from a host with `DB_URL` (e.g. CI job, bastion with Python, or one-off ECS task).
+
+**Ingest pipeline (P2-4–P2-15):** After seeding, run `python scripts/check_corpus.py` (needs `DB_URL`; for DLQ use `SQS_QUEUE_URL` + `SQS_ENDPOINT_URL` locally). Worker routes by `doc_type` / bytes: **SEC HTML** (`10-K`/`10-Q`) → `sec_parser` + sections; **`transcript`** → `transcript_parser` (`prepared_remarks` / `qa`); **PDF** (`%PDF` magic or `letter` / `shareholder_letter` / `pdf`) → `pdf_parser`; else plain UTF-8. **Chunking:** `app/ingestion/chunker.py` (LangChain + tiktoken, 512 / 50). **Embeddings:** `app/ingestion/embedder.py` (`text-embedding-3-small`, tenacity; zeros if no `OPENAI_API_KEY`). **P2-12 (prod):** Terraform defines ECS task definition + service `${project_name}-worker` (default `financial-copilot-worker`), same ECR image as API, `CMD` `python -m app.ingestion.worker`; GitHub Actions forces a new deployment for both services. **P2-14** / S3 still needs real AWS or `S3_ENDPOINT_URL` for local.
+
 | ID | Task | Scope | Deps | Done |
 |----|------|-------|------|------|
-| P2-1 | **DB schema + Alembic setup** – Install Alembic. Create migration with two tables: `documents` (`id`, `s3_key`, `company_ticker`, `company_name`, `doc_type`, `year`, `quarter`, `source_url`, `ingested_at`, `status`) and `document_chunks` (`id`, `document_id FK`, `chunk_index`, `chunk_text`, `embedding vector(1536)`, `tsv tsvector GENERATED`, `section`, `company_ticker`, `doc_type`, `year`, `quarter`, `token_count`). | M | P1-5 | - |
-| P2-2 | **Indexes** – Create three indexes after migration: HNSW on `embedding` (`vector_cosine_ops`, m=16, ef_construction=64), GIN on `tsv`, and btree on `(company_ticker, year, quarter, doc_type)`. Confirm with `\d document_chunks` in psql. | S | P2-1 | - |
-| P2-3 | **Alembic migrate (local + prod)** – Run `alembic upgrade head` against local Docker Compose Postgres. Confirm tables and indexes exist. Run same migration against RDS. | S | P2-2, P1-5 | - |
-| P2-4 | **SEC filing parser** – Write `app/ingestion/parsers/sec_parser.py`. Install `sec-edgar-downloader`. Download 10-K/10-Q by ticker + year. Extract plain text from HTML using `beautifulsoup4`, strip headers/footers/boilerplate. Detect and label sections: `risk_factors`, `mda`, `business`, `quantitative_disclosures`. Test: parse Apple 10-K 2023, confirm section labels present and text is clean. | L | — | - |
-| P2-5 | **Earnings transcript parser** – Write `app/ingestion/parsers/transcript_parser.py`. Source: Kaggle earnings call dataset or static HTML. Parse speaker turns, label sections as `prepared_remarks` vs `qa`. Test: parse one transcript, confirm speaker labels present. | M | — | - |
-| P2-6 | **PDF parser (shareholder letters)** – Write `app/ingestion/parsers/pdf_parser.py` using `pdfplumber`. Handle basic multi-column layouts. Test: parse Berkshire Hathaway 2023 annual letter, confirm extracted text is readable and clean. Flag unreadable pages with a warning log (do not crash). | M | — | - |
-| P2-7 | **Chunker** – Write `app/ingestion/chunker.py`. Use `langchain.text_splitter.RecursiveCharacterTextSplitter` with `chunk_size=512`, `chunk_overlap=50` (token-based via `tiktoken`). Each chunk inherits `section` from parent. Return list of `ChunkRecord(text, section, chunk_index, token_count)`. Test: chunk a 10-K, confirm no chunk exceeds 600 tokens and section labels are propagated. | M | — | - |
-| P2-8 | **Embedder** – Write `app/ingestion/embedder.py`. Call `openai.embeddings.create(model="text-embedding-3-small")` in batches of 100 chunks. Add retry with exponential backoff using `tenacity` for rate limit errors (429). Return `list[list[float]]`. Test: embed 10 chunks, confirm output shape `(10, 1536)`. | M | — | - |
-| P2-9 | **Ingestion worker loop** – Write `app/ingestion/worker.py`. Poll SQS for messages. For each message: download file from S3 to `/tmp/`, select correct parser by `doc_type`, parse → chunk → embed → batch INSERT into `document_chunks`, update `documents.status = 'done'`, delete SQS message. On any error: update `status = 'failed'`, do NOT delete message (let DLQ catch it after 3 retries). Log each step with `document_id` and `chunk_count`. | L | P2-3, P2-4, P2-5, P2-6, P2-7, P2-8 | - |
-| P2-10 | **POST /ingest endpoint** – Accept `{s3_key, company_ticker, doc_type, year, quarter, source_url}`. Insert row in `documents` with `status = 'pending'`. Put message `{s3_key, document_id}` on SQS. Return `{document_id, status: "queued"}`. | S | P2-9 | - |
-| P2-11 | **GET /ingest/{document_id} endpoint** – Return current document status and chunk count. Return 404 if document not found. | S | P2-10 | - |
-| P2-12 | **Ingestion worker ECS task** – Add second ECS task definition (same Docker image, CMD: `python -m app.ingestion.worker`). Deploy as ECS service (1 desired task). Confirm worker starts, polls SQS, and logs are visible in CloudWatch. | M | P1-14, P2-9 | - |
-| P2-13 | **Deduplication guard** – Before inserting a chunk, check if a row with `(document_id, chunk_index)` already exists. Skip if duplicate. Prevents re-embedding if ingestion is re-triggered for the same document. | S | P2-9 | - |
-| P2-14 | **Corpus seeding** – Write `scripts/seed_corpus.py`. Upload 3 documents to S3 (one 10-K, one transcript, one shareholder letter). Call `POST /ingest` for each. Poll `GET /ingest/{id}` until all `status = 'done'`. | S | P2-12 | - |
-| P2-15 | **Corpus validation script** – Write `scripts/check_corpus.py`. Run: `SELECT company_ticker, doc_type, year, COUNT(*) FROM document_chunks GROUP BY 1,2,3 ORDER BY 1,2,3`. Print results. Confirm embeddings are non-null and dimension = 1536. Confirm DLQ is empty. | S | P2-14 | - |
+| P2-1 | **DB schema + Alembic setup** – Install Alembic. Create migration with two tables: `documents` (`id`, `s3_key`, `company_ticker`, `company_name`, `doc_type`, `year`, `quarter`, `source_url`, `ingested_at`, `status`) and `document_chunks` (`id`, `document_id FK`, `chunk_index`, `chunk_text`, `embedding vector(1536)`, `tsv tsvector GENERATED`, `section`, `company_ticker`, `doc_type`, `year`, `quarter`, `token_count`). | M | P1-5 | DONE |
+| P2-2 | **Indexes** – Create three indexes after migration: HNSW on `embedding` (`vector_cosine_ops`, m=16, ef_construction=64), GIN on `tsv`, and btree on `(company_ticker, year, quarter, doc_type)`. Confirm with `\d document_chunks` in psql. | S | P2-1 | DONE |
+| P2-3 | **Alembic migrate (local + prod)** – Run `alembic upgrade head` against local Docker Compose Postgres. Confirm tables and indexes exist. Run same migration against RDS. | S | P2-2, P1-5 | DONE |
+| P2-4 | **SEC filing parser** – Write `app/ingestion/parsers/sec_parser.py`. Install `sec-edgar-downloader`. Download 10-K/10-Q by ticker + year. Extract plain text from HTML using `beautifulsoup4`, strip headers/footers/boilerplate. Detect and label sections: `risk_factors`, `mda`, `business`, `quantitative_disclosures`. Test: parse Apple 10-K 2023, confirm section labels present and text is clean. | L | — | DONE |
+| P2-5 | **Earnings transcript parser** – Write `app/ingestion/parsers/transcript_parser.py`. Source: Kaggle earnings call dataset or static HTML. Parse speaker turns, label sections as `prepared_remarks` vs `qa`. Test: parse one transcript, confirm speaker labels present. | M | — | DONE |
+| P2-6 | **PDF parser (shareholder letters)** – Write `app/ingestion/parsers/pdf_parser.py` using `pdfplumber`. Handle basic multi-column layouts. Test: parse Berkshire Hathaway 2023 annual letter, confirm extracted text is readable and clean. Flag unreadable pages with a warning log (do not crash). | M | — | DONE |
+| P2-7 | **Chunker** – Write `app/ingestion/chunker.py`. Use `langchain.text_splitter.RecursiveCharacterTextSplitter` with `chunk_size=512`, `chunk_overlap=50` (token-based via `tiktoken`). Each chunk inherits `section` from parent. Return list of `ChunkRecord(text, section, chunk_index, token_count)`. Test: chunk a 10-K, confirm no chunk exceeds 600 tokens and section labels are propagated. | M | — | DONE |
+| P2-8 | **Embedder** – Write `app/ingestion/embedder.py`. Call `openai.embeddings.create(model="text-embedding-3-small")` in batches of 100 chunks. Add retry with exponential backoff using `tenacity` for rate limit errors (429). Return `list[list[float]]`. Test: embed 10 chunks, confirm output shape `(10, 1536)`. | M | — | DONE |
+| P2-9 | **Ingestion worker loop** – Write `app/ingestion/worker.py`. Poll SQS for messages. For each message: download file from S3 to `/tmp/`, select correct parser by `doc_type`, parse → chunk → embed → batch INSERT into `document_chunks`, update `documents.status = 'done'`, delete SQS message. On any error: update `status = 'failed'`, do NOT delete message (let DLQ catch it after 3 retries). Log each step with `document_id` and `chunk_count`. | L | P2-3 | DONE |
+| P2-10 | **POST /ingest endpoint** – Accept `{s3_key, company_ticker, doc_type, year, quarter, source_url}`. Insert row in `documents` with `status = 'pending'`. Put message `{s3_key, document_id}` on SQS. Return `{document_id, status: "queued"}`. | S | P2-3 | DONE |
+| P2-11 | **GET /ingest/{document_id} endpoint** – Return current document status and chunk count. Return 404 if document not found. | S | P2-10 | DONE |
+| P2-12 | **Ingestion worker ECS task** – Add second ECS task definition (same Docker image, CMD: `python -m app.ingestion.worker`). Deploy as ECS service (1 desired task). Confirm worker starts, polls SQS, and logs are visible in CloudWatch. | M | P1-14, P2-9 | DONE |
+| P2-13 | **Deduplication guard** – Before inserting a chunk, check if a row with `(document_id, chunk_index)` already exists. Skip if duplicate. Prevents re-embedding if ingestion is re-triggered for the same document. | S | P2-9 | DONE |
+| P2-14 | **Corpus seeding** – Write `scripts/seed_corpus.py`. Upload 3 documents to S3 (one 10-K, one transcript, one shareholder letter). Call `POST /ingest` for each. Poll `GET /ingest/{id}` until all `status = 'done'`. | S | P2-11 | DONE |
+| P2-15 | **Corpus validation script** – Write `scripts/check_corpus.py`. Run: `SELECT company_ticker, doc_type, year, COUNT(*) FROM document_chunks GROUP BY 1,2,3 ORDER BY 1,2,3`. Print results. Confirm embeddings are non-null and dimension = 1536. Confirm DLQ is empty. | S | P2-14 | DONE |
 
 **Definition of done (Phase 2):** `SELECT COUNT(*) FROM document_chunks > 500`. Three document types present. All embedding values non-null with dimension 1536. `documents` table has no `status = 'failed'` rows after clean run. DLQ message count = 0.
 
@@ -203,7 +206,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 ## Suggested Build Order
 
-1. **Week 1–2 (Foundation):** P1-1 through P1-16. Goal: `/health` live on ECS, full local dev stack running.
+1. **Week 1–2 (Foundation):** P1-1 through P1-16 — **complete.** Goal met: `/health` live on ECS, full local dev stack running.
 2. **Week 3–4 (Ingestion):** P2-1 through P2-15. Goal: 3 documents ingested, corpus queryable in Postgres.
 3. **Week 5 (Retrieval):** P3-1 through P3-9. Goal: `/retrieve` returning reranked chunks, manual eval complete.
 4. **Week 6 (Generation):** P4-1 through P4-9. Goal: `/query` returning grounded cited answers.

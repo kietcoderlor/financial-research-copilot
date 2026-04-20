@@ -16,6 +16,11 @@ output "sqs_queue_url" {
   value = aws_sqs_queue.ingestion.url
 }
 
+output "ecs_worker_service_name" {
+  description = "Fargate service running python -m app.ingestion.worker (P2-12)."
+  value       = aws_ecs_service.worker.name
+}
+
 output "secrets_manager_secret_arn" {
   description = "ECS reads JSON keys from this secret."
   value       = aws_secretsmanager_secret.app.arn
@@ -37,5 +42,6 @@ output "next_steps" {
     2) After the image exists, ECS tasks should pass health checks; verify: curl http://$(terraform output -raw alb_dns_name)/health
     3) Enable pgvector on RDS from a host that can reach the DB (bastion/VPN): CREATE EXTENSION IF NOT EXISTS vector;
     4) Add GitHub Actions secrets AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY for deploy.yml.
+    5) Ingestion worker: ECS service "${aws_ecs_service.worker.name}" (same ECR image as API); CloudWatch log stream prefix "worker" under /ecs/${var.project_name}.
   EOT
 }

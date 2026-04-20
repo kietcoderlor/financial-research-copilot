@@ -9,13 +9,35 @@ services:
       DB_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/copilot
       REDIS_URL: redis://redis:6379
       AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
       SQS_QUEUE_URL: http://elasticmq:9324/000000000000/ingestion-queue
+      SQS_ENDPOINT_URL: http://elasticmq:9324
       S3_BUCKET: financial-copilot-raw-docs
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_started
+      elasticmq:
+        condition: service_started
+
+  worker:
+    build: .
+    command: ["python", "-m", "app.ingestion.worker"]
+    environment:
+      APP_ENV: development
+      LOG_LEVEL: INFO
+      DB_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/copilot
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      SQS_QUEUE_URL: http://elasticmq:9324/000000000000/ingestion-queue
+      SQS_ENDPOINT_URL: http://elasticmq:9324
+      S3_BUCKET: financial-copilot-raw-docs
+    depends_on:
+      postgres:
+        condition: service_healthy
       elasticmq:
         condition: service_started
 

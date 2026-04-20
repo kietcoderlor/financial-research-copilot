@@ -1,11 +1,11 @@
-# Phase 1 (P1-16): build image, push to ECR, force new ECS deployment on push to main.
+# Phase 1–2: build image, push to ECR, force new ECS deployment for API + ingestion worker (same image).
 # Prerequisites (AWS console / IaC): ECR repo `financial-copilot-api`, ECS cluster `financial-copilot`,
-# service + task definition names matching env vars below. GitHub repo secrets:
+# services matching env vars below. GitHub repo secrets:
 #   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
 #
 # Task definition should reference this ECR image (e.g. :latest); force-new-deployment pulls the new digest.
 
-name: Deploy API
+name: Deploy API and worker
 
 on:
   push:
@@ -20,7 +20,8 @@ env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: financial-copilot-api
   ECS_CLUSTER: financial-copilot
-  ECS_SERVICE: financial-copilot-api
+  ECS_SERVICE_API: financial-copilot-api
+  ECS_SERVICE_WORKER: financial-copilot-worker
 
 jobs:
   deploy:
@@ -56,11 +57,16 @@ jobs:
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Force new ECS deployment
+      - name: Force new ECS deployment (API + worker)
         run: |
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
-            --service "$ECS_SERVICE" \
+            --service "$ECS_SERVICE_API" \
+            --force-new-deployment \
+            --region "$AWS_REGION"
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE_WORKER" \
             --force-new-deployment \
             --region "$AWS_REGION"
 
@@ -68,5 +74,5 @@ jobs:
         run: |
           aws ecs wait services-stable \
             --cluster "$ECS_CLUSTER" \
-            --services "$ECS_SERVICE" \
+            --services "$ECS_SERVICE_API" "$ECS_SERVICE_WORKER" \
             --region "$AWS_REGION"
