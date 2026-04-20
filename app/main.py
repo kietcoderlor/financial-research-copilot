@@ -6,6 +6,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.health import router as health_router
 from app.api.ingest import router as ingest_router
+from app.api.retrieve import router as retrieve_router
 from app.core.config import settings
 from app.core.exceptions import (
     generic_exception_handler,
@@ -34,6 +35,7 @@ def create_app() -> FastAPI:
     application.add_exception_handler(Exception, generic_exception_handler)
     application.include_router(health_router, tags=["health"])
     application.include_router(ingest_router)
+    application.include_router(retrieve_router)
     return application
 
 

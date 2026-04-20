@@ -1,5 +1,7 @@
 """Pydantic request bodies."""
 
+from __future__ import annotations
+
 from pydantic import BaseModel, Field
 
 
@@ -11,3 +13,14 @@ class IngestCreateRequest(BaseModel):
     year: int | None = Field(default=None, ge=1900, le=2100)
     quarter: int | None = Field(default=None, ge=1, le=4)
     source_url: str | None = None
+
+
+class RetrieveFilters(BaseModel):
+    companies: list[str] = Field(default_factory=list)
+    years: list[int] = Field(default_factory=list)
+    doc_types: list[str] = Field(default_factory=list)
+
+
+class RetrieveRequest(BaseModel):
+    query: str = Field(min_length=1)
+    filters: RetrieveFilters = Field(default_factory=RetrieveFilters)

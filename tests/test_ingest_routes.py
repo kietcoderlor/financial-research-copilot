@@ -8,3 +8,5 @@ def test_openapi_exposes_ingest_paths() -> None:
     assert "post" in paths["/ingest"]
     assert "/ingest/{document_id}" in paths
     assert "get" in paths["/ingest/{document_id}"]
+    assert "/retrieve" in paths
+    assert "post" in paths["/retrieve"]

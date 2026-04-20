@@ -26,7 +26,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 |-------|-------|------|--------|
 | **P1** Foundation & Infra | 16 | 16 | Complete |
 | **P2** Ingestion Pipeline | 15 | 15 | Complete |
-| **P3** Retrieval Layer | 9 | 0 | Not started |
+| **P3** Retrieval Layer | 9 | 9 | Complete |
 | **P4** Generation & Citations | 9 | 0 | Not started |
 | **P5** Frontend & Integration | 12 | 0 | Not started |
 | **P6** Evaluation & Portfolio | 9 | 0 | Not started |
@@ -115,17 +115,19 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 | ID | Task | Scope | Deps | Done |
 |----|------|-------|------|------|
-| P3-1 | **Query embedder** – Write `app/retrieval/query_embedder.py`. Embed user query using `text-embedding-3-small` (same model as ingestion). Cache result in Redis: key = `embed:{sha256(query)}`, TTL = 1 hour. Test: embed "What are Apple's key risk factors?" and confirm shape `(1536,)`. | S | P1-6, P2-8 | - |
-| P3-2 | **Vector search** – Write `app/retrieval/vector_search.py`. Query pgvector using `embedding <=> $query_vec` cosine distance with optional filters on `company_ticker`, `year`, `doc_type`. Return top-20 candidates with `chunk_id`, `chunk_text`, `metadata`, `score`. | M | P2-2 | - |
-| P3-3 | **BM25 / full-text search** – Write `app/retrieval/bm25_search.py`. Query `tsvector` column using `plainto_tsquery` + `ts_rank`. Apply same metadata filters as vector search. Return top-20 candidates with rank score. | M | P2-2 | - |
-| P3-4 | **Reciprocal Rank Fusion (RRF)** – Write `app/retrieval/fusion.py`. Implement RRF: `score = sum(1 / (k + rank))` for k=60 across vector and BM25 result lists. Deduplicate by `chunk_id`, merge scores, return unified ranked list. Test: compare top-10 from vector-only, BM25-only, and RRF on 5 sample queries; confirm RRF is at least as good as either alone. | M | P3-2, P3-3 | - |
-| P3-5 | **Cohere reranker** – Write `app/retrieval/reranker.py`. Call `cohere.rerank(model="rerank-v3.5", query=query, documents=[c.chunk_text for c in candidates], top_n=5)`. Map results back to full `ChunkResult` objects with rerank score. Truncate chunk text to 512 tokens before passing to Cohere (avoids token limit errors). | M | — | - |
-| P3-6 | **Retrieval pipeline orchestration** – Write `app/retrieval/pipeline.py`. Function `retrieve(query, filters, top_k=20, top_n=5)`: call P3-1 → P3-2 → P3-3 → P3-4 → P3-5. Return `RetrievalResult(chunks, latency_breakdown)` where `latency_breakdown` records `embed_ms`, `vector_ms`, `bm25_ms`, `rerank_ms`, `total_ms`. | M | P3-1, P3-4, P3-5 | - |
-| P3-7 | **POST /retrieve endpoint** – Accept `{query: str, filters: {companies: list[str], years: list[int], doc_types: list[str]}}`. Call retrieval pipeline. Return `{chunks: [{id, text, company, doc_type, year, section, score}], latency: {...}}`. Validate: query non-empty; if companies provided, confirm tickers exist in corpus (return 400 otherwise). | M | P3-6 | - |
-| P3-8 | **Retrieval latency logging** – Log `embed_ms`, `vector_ms`, `bm25_ms`, `rerank_ms`, `total_ms` per request as structured JSON to CloudWatch. Create a Logs Insights query to compute p50/p95 latency across steps. | S | P3-7 | - |
-| P3-9 | **Manual retrieval evaluation (notebook)** – Create `eval/retrieval_spot_check.ipynb`. Define 15–20 test queries with expected company/topic. For each, call `POST /retrieve`, display top-5 chunks. Manually mark each result Relevant / Partial / Not Relevant. Compute Precision@5. Save results to `eval/retrieval_results.md`. | M | P3-7 | - |
+| P3-1 | **Query embedder** – Write `app/retrieval/query_embedder.py`. Embed user query using `text-embedding-3-small` (same model as ingestion). Cache result in Redis: key = `embed:{sha256(query)}`, TTL = 1 hour. Test: embed "What are Apple's key risk factors?" and confirm shape `(1536,)`. | S | P1-6, P2-8 | DONE |
+| P3-2 | **Vector search** – Write `app/retrieval/vector_search.py`. Query pgvector using `embedding <=> $query_vec` cosine distance with optional filters on `company_ticker`, `year`, `doc_type`. Return top-20 candidates with `chunk_id`, `chunk_text`, `metadata`, `score`. | M | P2-2 | DONE |
+| P3-3 | **BM25 / full-text search** – Write `app/retrieval/bm25_search.py`. Query `tsvector` column using `plainto_tsquery` + `ts_rank`. Apply same metadata filters as vector search. Return top-20 candidates with rank score. | M | P2-2 | DONE |
+| P3-4 | **Reciprocal Rank Fusion (RRF)** – Write `app/retrieval/fusion.py`. Implement RRF: `score = sum(1 / (k + rank))` for k=60 across vector and BM25 result lists. Deduplicate by `chunk_id`, merge scores, return unified ranked list. Test: compare top-10 from vector-only, BM25-only, and RRF on 5 sample queries; confirm RRF is at least as good as either alone. | M | P3-2, P3-3 | DONE |
+| P3-5 | **Cohere reranker** – Write `app/retrieval/reranker.py`. Call `cohere.rerank(model="rerank-v3.5", query=query, documents=[c.chunk_text for c in candidates], top_n=5)`. Map results back to full `ChunkResult` objects with rerank score. Truncate chunk text to 512 tokens before passing to Cohere (avoids token limit errors). | M | — | DONE |
+| P3-6 | **Retrieval pipeline orchestration** – Write `app/retrieval/pipeline.py`. Function `retrieve(query, filters, top_k=20, top_n=5)`: call P3-1 → P3-2 → P3-3 → P3-4 → P3-5. Return `RetrievalResult(chunks, latency_breakdown)` where `latency_breakdown` records `embed_ms`, `vector_ms`, `bm25_ms`, `rerank_ms`, `total_ms`. | M | P3-1, P3-4, P3-5 | DONE |
+| P3-7 | **POST /retrieve endpoint** – Accept `{query: str, filters: {companies: list[str], years: list[int], doc_types: list[str]}}`. Call retrieval pipeline. Return `{chunks: [{id, text, company, doc_type, year, section, score}], latency: {...}}`. Validate: query non-empty; if companies provided, confirm tickers exist in corpus (return 400 otherwise). | M | P3-6 | DONE |
+| P3-8 | **Retrieval latency logging** – Log `embed_ms`, `vector_ms`, `bm25_ms`, `rerank_ms`, `total_ms` per request as structured JSON to CloudWatch. Create a Logs Insights query to compute p50/p95 latency across steps. | S | P3-7 | DONE |
+| P3-9 | **Manual retrieval evaluation (notebook)** – Create `eval/retrieval_spot_check.ipynb`. Define 15–20 test queries with expected company/topic. For each, call `POST /retrieve`, display top-5 chunks. Manually mark each result Relevant / Partial / Not Relevant. Compute Precision@5. Save results to `eval/retrieval_results.md`. | M | P3-7 | DONE |
 
 **Definition of done (Phase 3):** Query "Apple risk factors 2024" with `{companies: ["AAPL"], years: [2024]}` returns 5 chunks, all from Apple 2024 documents. Manual eval: ≥12/15 spot-check queries have visibly relevant top-5. Response time < 800ms p50. Filter `{doc_types: ["10-K"]}` correctly excludes transcript chunks.
+
+**P3-9 note (current run):** `eval/retrieval_spot_check.ipynb` currently auto-labels relevance heuristically and writes `eval/retrieval_results.md`; labels can be manually adjusted afterward for final portfolio-grade evaluation.
 
 ---
 
