@@ -76,9 +76,9 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
 
 export const apiClient = {
   query(payload: QueryRequest): Promise<QueryResponse> {
-    return postJson<QueryResponse>("/query", payload);
+    return postJson<QueryResponse>("/api/query", payload);
   },
   retrieve(query: string, filters: RetrieveFilters): Promise<RetrieveResponse> {
-    return postJson<RetrieveResponse>("/retrieve", { query, filters });
+    return postJson<RetrieveResponse>("/api/retrieve", { query, filters });
   },
 };
