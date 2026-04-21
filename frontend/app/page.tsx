@@ -43,12 +43,15 @@ export default function Home() {
       }
     } catch (queryError) {
       const message = queryError instanceof Error ? queryError.message : "Unexpected error.";
-      if (message.includes("429")) {
+      const lower = message.toLowerCase();
+      if (message.includes("429") || lower.includes("too many requests")) {
         setError("Rate limit exceeded. Please wait a minute and retry.");
-      } else if (message.toLowerCase().includes("failed") || message.toLowerCase().includes("fetch")) {
+      } else if (lower.includes("failed to fetch") || lower.includes("networkerror")) {
         setError("Cannot reach API right now. Please retry shortly.");
+      } else if (message === "Unexpected error.") {
+        setError("Something went wrong. Please retry.");
       } else {
-        setError("No results found for this query and filter combination.");
+        setError(message);
       }
     } finally {
       setLoading(false);

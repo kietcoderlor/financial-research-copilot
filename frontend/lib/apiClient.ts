@@ -60,6 +60,32 @@ export type RetrieveResponse = {
   };
 };
 
+function errorMessageFromBody(status: number, text: string): string {
+  if (!text.trim()) {
+    return `Request failed with status ${status}`;
+  }
+  try {
+    const parsed = JSON.parse(text) as { detail?: unknown };
+    const { detail } = parsed;
+    if (typeof detail === "string") {
+      return detail;
+    }
+    if (Array.isArray(detail)) {
+      return detail
+        .map((item) => {
+          if (item && typeof item === "object" && "msg" in item) {
+            return String((item as { msg: unknown }).msg);
+          }
+          return String(item);
+        })
+        .join("; ");
+    }
+  } catch {
+    // not JSON
+  }
+  return text;
+}
+
 async function postJson<T>(path: string, body: unknown): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
@@ -69,7 +95,7 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
   });
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(text || `Request failed with status ${response.status}`);
+    throw new Error(errorMessageFromBody(response.status, text));
   }
   return (await response.json()) as T;
 }
