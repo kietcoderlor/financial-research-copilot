@@ -12,3 +12,5 @@ def test_openapi_exposes_ingest_paths() -> None:
     assert "post" in paths["/retrieve"]
     assert "/query" in paths
     assert "post" in paths["/query"]
+    assert "/meta/companies" in paths
+    assert "get" in paths["/meta/companies"]

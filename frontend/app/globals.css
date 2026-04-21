@@ -24,3 +24,36 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Markdown answer: force high-contrast body text (Tailwind Typography may be absent). */
+.answer-markdown p,
+.answer-markdown li,
+.answer-markdown blockquote,
+.answer-markdown td,
+.answer-markdown th {
+  color: rgb(28 25 23);
+}
+
+.answer-markdown strong {
+  color: rgb(12 10 9);
+  font-weight: 600;
+}
+
+.answer-markdown p {
+  margin-top: 0.65em;
+  margin-bottom: 0.65em;
+}
+
+.answer-markdown p:first-child {
+  margin-top: 0;
+}
+
+.answer-markdown ul,
+.answer-markdown ol {
+  margin: 0.5em 0 0.5em 1.1em;
+  padding-left: 0.25em;
+}
+
+.answer-markdown li {
+  margin: 0.25em 0;
+}

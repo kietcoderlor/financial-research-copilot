@@ -59,40 +59,60 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-100 to-stone-200/80">
-      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <header className="mb-8 border-l-4 border-teal-700 pl-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-teal-800">Research workspace</p>
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Financial Research Copilot</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-700">
-            Query SEC filings and transcripts with retrieval-backed answers. Every factual line should trace to a cited
-            chunk.
+    <div className="min-h-screen bg-slate-950 text-slate-100">
+      <div className="border-b border-white/10 bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/40">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="hidden h-9 w-9 rounded-lg bg-teal-500/20 ring-1 ring-teal-400/40 sm:block" aria-hidden />
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-teal-200/90">Workspace</p>
+              <p className="text-sm font-semibold text-white">Financial Research Copilot</p>
+            </div>
+          </div>
+          <p className="hidden max-w-md text-right text-xs leading-relaxed text-slate-300 sm:block">
+            Retrieval-grounded Q&amp;A over ingested filings. Citations map to stored chunks.
           </p>
-        </header>
-
-        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-          <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-            <QueryInput value={question} loading={loading} onChange={setQuestion} onSubmit={runQuery} />
-            <FilterPanel value={filters} onChange={setFilters} />
-          </aside>
-
-          <section className="space-y-4">
-            <ErrorBanner error={error} onRetry={runQuery} />
-            {noResults ? (
-              <div className="rounded-xl border border-amber-200 bg-amber-50/90 p-4 text-sm font-medium leading-relaxed text-amber-950 shadow-sm ring-1 ring-amber-900/10">
-                No citations returned for this run. Try broader filters or a different question.
-              </div>
-            ) : null}
-            <AnswerDisplay answer={response?.answer ?? null} loading={loading} />
-            <CitationPanel citations={response?.citations ?? []} />
-          </section>
         </div>
+      </div>
 
-        <footer className="mt-12 border-t border-stone-300/80 pt-6 text-xs leading-relaxed text-stone-700">
-          Answers are grounded in ingested SEC filings, earnings transcripts, and company reports. Claims should align
-          with the cited excerpts—verify material facts in the original filings.
-        </footer>
-      </main>
+      <div className="mx-auto max-w-6xl px-3 py-6 sm:px-4 sm:py-8">
+        <div className="overflow-hidden rounded-2xl border border-black/20 bg-[#f4f1eb] shadow-2xl shadow-black/40 ring-1 ring-white/10">
+          <div className="border-b border-stone-300/80 bg-[#ece7df] px-5 py-4 sm:px-8">
+            <h1 className="font-serif text-2xl font-bold tracking-tight text-stone-900 sm:text-3xl">
+              Research query
+            </h1>
+            <p className="mt-1 max-w-2xl text-sm leading-relaxed text-stone-700">
+              Build a question, narrow optional filters, then run the pipeline. Answers should cite the numbered
+              sources below.
+            </p>
+          </div>
+
+          <div className="grid gap-0 lg:grid-cols-[minmax(280px,360px)_1fr]">
+            <aside className="border-b border-stone-300/80 bg-[#f7f4ef] p-4 sm:p-5 lg:border-b-0 lg:border-r lg:border-stone-300/80">
+              <div className="space-y-4 lg:sticky lg:top-5">
+                <QueryInput value={question} loading={loading} onChange={setQuestion} onSubmit={runQuery} />
+                <FilterPanel value={filters} onChange={setFilters} />
+              </div>
+            </aside>
+
+            <section className="space-y-4 bg-[#faf8f4] p-4 sm:p-6">
+              <ErrorBanner error={error} onRetry={runQuery} />
+              {noResults ? (
+                <div className="rounded-xl border border-amber-200 bg-amber-50/95 p-4 text-sm font-medium leading-relaxed text-amber-950 shadow-sm ring-1 ring-amber-900/10">
+                  No citations returned for this run. Try broader filters or a different question.
+                </div>
+              ) : null}
+              <AnswerDisplay answer={response?.answer ?? null} loading={loading} />
+              <CitationPanel citations={response?.citations ?? []} />
+            </section>
+          </div>
+
+          <footer className="border-t border-stone-300/80 bg-[#ece7df] px-5 py-4 text-xs leading-relaxed text-stone-700 sm:px-8">
+            Production use: verify figures and legal claims in the original SEC filings. This UI is a research aid, not
+            investment advice.
+          </footer>
+        </div>
+      </div>
     </div>
   );
 }
