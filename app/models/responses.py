@@ -40,3 +40,33 @@ class RetrieveLatencyResponse(BaseModel):
 class RetrieveResponse(BaseModel):
     chunks: list[RetrieveChunkResponse]
     latency: RetrieveLatencyResponse
+
+
+class QueryCitationResponse(BaseModel):
+    index: int
+    chunk_id: UUID
+    company: str
+    doc_type: str
+    year: int | None
+    section: str | None
+    source_url: str | None
+    excerpt: str
+
+
+class QueryMetadataResponse(BaseModel):
+    query_type: str
+    chunks_retrieved: int
+    chunks_used: int
+    retrieval_ms: int
+    llm_ms: int
+    input_tokens: int
+    output_tokens: int
+    llm_cost_usd: float = 0.0
+    total_ms: int
+    cache_hit: bool = False
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    citations: list[QueryCitationResponse]
+    metadata: QueryMetadataResponse

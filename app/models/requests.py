@@ -24,3 +24,8 @@ class RetrieveFilters(BaseModel):
 class RetrieveRequest(BaseModel):
     query: str = Field(min_length=1)
     filters: RetrieveFilters = Field(default_factory=RetrieveFilters)
+
+
+class QueryRequest(BaseModel):
+    question: str = Field(min_length=1)
+    filters: RetrieveFilters = Field(default_factory=RetrieveFilters)
