@@ -59,17 +59,19 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <main className="mx-auto w-full max-w-6xl px-4 py-8">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold text-zinc-900">Financial Research Copilot</h1>
-          <p className="text-sm text-zinc-600">
-            Ask questions across SEC filings and transcripts with grounded citations.
+    <div className="min-h-screen bg-gradient-to-b from-stone-100 to-stone-200/80">
+      <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+        <header className="mb-8 border-l-4 border-teal-700 pl-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-teal-800">Research workspace</p>
+          <h1 className="mt-1 text-3xl font-bold tracking-tight text-stone-900">Financial Research Copilot</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-stone-700">
+            Query SEC filings and transcripts with retrieval-backed answers. Every factual line should trace to a cited
+            chunk.
           </p>
         </header>
 
-        <div className="grid gap-4 lg:grid-cols-[360px_1fr]">
-          <aside className="space-y-4">
+        <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
+          <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
             <QueryInput value={question} loading={loading} onChange={setQuestion} onSubmit={runQuery} />
             <FilterPanel value={filters} onChange={setFilters} />
           </aside>
@@ -77,8 +79,8 @@ export default function Home() {
           <section className="space-y-4">
             <ErrorBanner error={error} onRetry={runQuery} />
             {noResults ? (
-              <div className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-500 shadow-sm">
-                No results found. Try broader filters or a simpler question.
+              <div className="rounded-xl border border-amber-200 bg-amber-50/90 p-4 text-sm font-medium leading-relaxed text-amber-950 shadow-sm ring-1 ring-amber-900/10">
+                No citations returned for this run. Try broader filters or a different question.
               </div>
             ) : null}
             <AnswerDisplay answer={response?.answer ?? null} loading={loading} />
@@ -86,8 +88,9 @@ export default function Home() {
           </section>
         </div>
 
-        <footer className="mt-8 border-t border-zinc-200 pt-4 text-xs text-zinc-500">
-          Answers are grounded in SEC filings, earnings transcripts, and company reports. All claims are cited.
+        <footer className="mt-12 border-t border-stone-300/80 pt-6 text-xs leading-relaxed text-stone-700">
+          Answers are grounded in ingested SEC filings, earnings transcripts, and company reports. Claims should align
+          with the cited excerpts—verify material facts in the original filings.
         </footer>
       </main>
     </div>

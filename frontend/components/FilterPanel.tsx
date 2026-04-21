@@ -12,29 +12,43 @@ const DOC_TYPES = ["10-K", "10-Q", "transcript", "letter"];
 
 export function FilterPanel({ value, onChange }: FilterPanelProps) {
   return (
-    <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-zinc-800">Filters</h2>
+    <section className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm ring-1 ring-stone-950/5">
+      <h2 className="mb-3 text-sm font-semibold text-stone-900">Filters</h2>
 
-      <label className="mb-1 block text-xs font-medium text-zinc-600">Companies</label>
-      <select
-        multiple
-        value={value.companies}
-        onChange={(event) => {
-          const companies = Array.from(event.target.selectedOptions).map((item) => item.value);
-          onChange({ ...value, companies });
-        }}
-        className="h-24 w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm"
-      >
-        {COMPANIES.map((company) => (
-          <option key={company} value={company}>
-            {company}
-          </option>
-        ))}
-      </select>
+      <fieldset className="mb-4">
+        <legend className="mb-2 block text-xs font-medium text-stone-700">Companies</legend>
+        <p className="mb-2 text-xs leading-relaxed text-stone-600">
+          Tick one or more tickers, or leave all unchecked to search the full corpus.
+        </p>
+        <div className="space-y-2 rounded-lg border border-stone-200 bg-stone-50/80 p-3">
+          {COMPANIES.map((ticker) => {
+            const checked = value.companies.includes(ticker);
+            return (
+              <label
+                key={ticker}
+                className="flex cursor-pointer items-center gap-3 text-sm font-medium text-stone-900"
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={() => {
+                    const companies = checked
+                      ? value.companies.filter((c) => c !== ticker)
+                      : [...value.companies, ticker];
+                    onChange({ ...value, companies });
+                  }}
+                  className="size-4 rounded border-stone-400 text-teal-700 focus:ring-2 focus:ring-teal-600/30"
+                />
+                <span>{ticker}</span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Year min</label>
+          <label className="mb-1 block text-xs font-medium text-stone-700">Year min</label>
           <input
             type="number"
             value={value.years[0] ?? ""}
@@ -52,11 +66,11 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                   : [];
               onChange({ ...value, years });
             }}
-            className="w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm"
+            className="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600/40"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-zinc-600">Year max</label>
+          <label className="mb-1 block text-xs font-medium text-stone-700">Year max</label>
           <input
             type="number"
             value={value.years[1] ?? ""}
@@ -74,17 +88,17 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                   : [];
               onChange({ ...value, years });
             }}
-            className="w-full rounded-lg border border-zinc-300 px-2 py-1 text-sm"
+            className="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-teal-600 focus:outline-none focus:ring-1 focus:ring-teal-600/40"
           />
         </div>
       </div>
 
-      <div className="mt-3 space-y-1">
-        <span className="block text-xs font-medium text-zinc-600">Doc types</span>
+      <div className="mt-4 space-y-2">
+        <span className="block text-xs font-medium text-stone-700">Doc types</span>
         {DOC_TYPES.map((docType) => {
           const checked = value.doc_types.includes(docType);
           return (
-            <label key={docType} className="flex items-center gap-2 text-sm text-zinc-700">
+            <label key={docType} className="flex cursor-pointer items-center gap-3 text-sm text-stone-900">
               <input
                 type="checkbox"
                 checked={checked}
@@ -94,6 +108,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                     : [...value.doc_types, docType];
                   onChange({ ...value, doc_types });
                 }}
+                className="size-4 rounded border-stone-400 text-teal-700 focus:ring-2 focus:ring-teal-600/30"
               />
               {docType}
             </label>

@@ -65,10 +65,13 @@ function errorMessageFromBody(status: number, text: string): string {
     return `Request failed with status ${status}`;
   }
   try {
-    const parsed = JSON.parse(text) as { detail?: unknown };
-    const { detail } = parsed;
+    const parsed = JSON.parse(text) as { detail?: unknown; error?: unknown };
+    const { detail, error: errField } = parsed;
     if (typeof detail === "string") {
       return detail;
+    }
+    if (typeof errField === "string") {
+      return errField;
     }
     if (Array.isArray(detail)) {
       return detail

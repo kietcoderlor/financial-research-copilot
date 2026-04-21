@@ -10,12 +10,15 @@ export function ErrorBanner({ error, onRetry }: ErrorBannerProps) {
     return null;
   }
   return (
-    <section className="rounded-xl border border-red-200 bg-red-50 p-4">
-      <p className="text-sm text-red-700">{error}</p>
+    <section
+      className="rounded-xl border border-red-200/90 bg-red-50/95 p-4 shadow-sm ring-1 ring-red-900/10"
+      role="alert"
+    >
+      <p className="text-sm font-medium leading-relaxed text-red-950">{error}</p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-2 rounded-lg border border-red-300 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-100"
+        className="mt-3 rounded-lg border border-red-300/90 bg-white px-3 py-1.5 text-xs font-semibold text-red-900 shadow-sm transition hover:bg-red-50"
       >
         Retry
       </button>
