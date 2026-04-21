@@ -28,7 +28,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 | **P2** Ingestion Pipeline | 15 | 15 | Complete |
 | **P3** Retrieval Layer | 9 | 9 | Complete |
 | **P4** Generation & Citations | 9 | 9 | Complete |
-| **P5** Frontend & Integration | 12 | 0 | Not started |
+| **P5** Frontend & Integration | 12 | 9 | In progress |
 | **P6** Evaluation & Portfolio | 9 | 0 | Not started |
 | **INFRA** Cross-cutting | 5 | 0 | Not started |
 
@@ -159,15 +159,15 @@ This document breaks down the Financial Research Copilot project into **concrete
 
 | ID | Task | Scope | Deps | Done |
 |----|------|-------|------|------|
-| P5-1 | **CORS config** – Add `CORSMiddleware` to FastAPI. Allow origins: `https://*.vercel.app`, `http://localhost:3000`. Allow all methods and headers. Deploy update to ECS. Confirm browser request from `localhost:3000` does not get blocked. | S | P4-7 | - |
-| P5-2 | **Next.js project setup** – Initialize Next.js 14 (App Router) + Tailwind CSS. Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000` and `.env.production` with ALB URL. Create `lib/apiClient.ts` wrapping fetch calls to `/query` and `/retrieve`. | S | — | - |
-| P5-3 | **QueryInput component** – Textarea for question, submit button, keyboard shortcut (Ctrl+Enter to submit). Disable button while loading. Show character count. Add 3 example query chips below input that prefill the textarea on click. | S | P5-2 | - |
-| P5-4 | **FilterPanel component** – Company multiselect dropdown (hardcoded list of ingested tickers), year range picker (min/max year), doc type checkboxes (10-K, 10-Q, transcript, letter). All filters optional — unselected means "search all". | M | P5-2 | - |
-| P5-5 | **AnswerDisplay component** – Render answer text as markdown using `react-markdown`. Show loading skeleton (3 animated lines) while API call is in flight. Show empty state when no query submitted yet. | S | P5-2 | - |
-| P5-6 | **CitationPanel component** – List citations returned by `/query`. Each citation shows: company badge, doc type, year, section label, and a 2-line excerpt. Expand on click to show full chunk text. | M | P5-2 | - |
-| P5-7 | **ErrorBanner component** – Show user-friendly error message when API returns non-200. Include a retry button. Distinguish between "no results found" and "server error". | S | P5-2 | - |
-| P5-8 | **Page layout** – Create `app/page.tsx`. Layout: header ("Financial Research Copilot" + tagline), left column (QueryInput + FilterPanel), main column (AnswerDisplay + CitationPanel). Add footer: "Answers are grounded in SEC filings, earnings transcripts, and company reports. All claims are cited." | M | P5-3, P5-4, P5-5, P5-6, P5-7 | - |
-| P5-9 | **API wiring** – Wire QueryInput submit → call `apiClient.query()` → update AnswerDisplay + CitationPanel state. Handle loading, error, and empty states. Log query + response in browser console in development. | M | P5-8 | - |
+| P5-1 | **CORS config** – Add `CORSMiddleware` to FastAPI. Allow origins: `https://*.vercel.app`, `http://localhost:3000`. Allow all methods and headers. Deploy update to ECS. Confirm browser request from `localhost:3000` does not get blocked. | S | P4-7 | DONE |
+| P5-2 | **Next.js project setup** – Initialize Next.js 14 (App Router) + Tailwind CSS. Create `.env.local` with `NEXT_PUBLIC_API_URL=http://localhost:8000` and `.env.production` with ALB URL. Create `lib/apiClient.ts` wrapping fetch calls to `/query` and `/retrieve`. | S | — | DONE |
+| P5-3 | **QueryInput component** – Textarea for question, submit button, keyboard shortcut (Ctrl+Enter to submit). Disable button while loading. Show character count. Add 3 example query chips below input that prefill the textarea on click. | S | P5-2 | DONE |
+| P5-4 | **FilterPanel component** – Company multiselect dropdown (hardcoded list of ingested tickers), year range picker (min/max year), doc type checkboxes (10-K, 10-Q, transcript, letter). All filters optional — unselected means "search all". | M | P5-2 | DONE |
+| P5-5 | **AnswerDisplay component** – Render answer text as markdown using `react-markdown`. Show loading skeleton (3 animated lines) while API call is in flight. Show empty state when no query submitted yet. | S | P5-2 | DONE |
+| P5-6 | **CitationPanel component** – List citations returned by `/query`. Each citation shows: company badge, doc type, year, section label, and a 2-line excerpt. Expand on click to show full chunk text. | M | P5-2 | DONE |
+| P5-7 | **ErrorBanner component** – Show user-friendly error message when API returns non-200. Include a retry button. Distinguish between "no results found" and "server error". | S | P5-2 | DONE |
+| P5-8 | **Page layout** – Create `app/page.tsx`. Layout: header ("Financial Research Copilot" + tagline), left column (QueryInput + FilterPanel), main column (AnswerDisplay + CitationPanel). Add footer: "Answers are grounded in SEC filings, earnings transcripts, and company reports. All claims are cited." | M | P5-3, P5-4, P5-5, P5-6, P5-7 | DONE |
+| P5-9 | **API wiring** – Wire QueryInput submit → call `apiClient.query()` → update AnswerDisplay + CitationPanel state. Handle loading, error, and empty states. Log query + response in browser console in development. | M | P5-8 | DONE |
 | P5-10 | **Vercel deployment** – Push Next.js repo to GitHub. Connect to Vercel. Set `NEXT_PUBLIC_API_URL` env var in Vercel project settings. Confirm deployment succeeds and page loads at Vercel URL. | S | P5-9 | - |
 | P5-11 | **End-to-end browser test** – Open Vercel URL in incognito browser. Submit 3 different queries with different filter combinations. Confirm answers and citations render correctly. Confirm error state shows when API is unreachable. | S | P5-10 | - |
 | P5-12 | **ALB rate limiting** – Configure API Gateway or ALB to limit to 100 requests/minute. Confirm 429 is returned on excess and handled gracefully by the frontend error banner. | S | P1-14 | - |
