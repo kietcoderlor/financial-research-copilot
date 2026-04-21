@@ -3,8 +3,8 @@
 
 Uses the same flow as seed_corpus.py: S3 PutObject -> POST /ingest -> poll status.
 
-Avoid doc_type \"letter\" for plain .txt uploads: the worker treats \"letter\" as PDF. Use \"10-K\",
-\"10-Q\", or \"transcript\" for UTF-8 text unless the object is a real PDF.
+Avoid doc_type "letter" for plain .txt uploads: the worker treats "letter" as PDF. Use "10-K",
+"10-Q", or "transcript" for UTF-8 text unless the object is a real PDF.
 
 Example:
   set API_URL=http://<alb>/...
