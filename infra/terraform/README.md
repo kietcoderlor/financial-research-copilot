@@ -1,6 +1,6 @@
 # Phase 1 AWS (Terraform)
 
-This stack provisions **P1-2 through P1-15** and **P2-12** (ingestion worker) from `doc/developer-tasks.md`: VPC (2 public + 2 private, NAT), security groups, S3, SQS+DLQ, RDS Postgres 15, ElastiCache Serverless (Redis 7), Secrets Manager (JSON for ECS env), ECR, CloudWatch log group, **two** ECS Fargate services (API behind ALB + **SQS worker**, same image), and ALB.
+This stack provisions **P1-2 through P1-15** and **P2-12** (ingestion worker) from `doc/developer-tasks.md`: VPC (2 public + 2 private, NAT), security groups, S3, SQS+DLQ, RDS Postgres 15, ElastiCache Serverless (Redis 7), Secrets Manager (JSON for ECS env), ECR, CloudWatch log group, **two** ECS Fargate services (API behind ALB + **SQS worker**, same image), ALB, and **WAFv2 rate limiting** for API traffic.
 
 **You still do manually**
 
@@ -141,6 +141,15 @@ Or push from CI after GitHub secrets are set (workflow updates **both** services
 - `terraform output alb_dns_name` then `curl http://<alb>/health`
 - CloudWatch log group `/ecs/financial-copilot` — stream prefix **`api`** (FastAPI) and **`worker`** (`python -m app.ingestion.worker`); ECS task role allows **S3 GetObject** on the raw bucket and **SQS** on `ingestion-queue`.
 - S3 / SQS: use outputs and the AWS console (`terraform output ecs_worker_service_name`)
+- WAF: `terraform output waf_web_acl_arn` should be non-empty; requests above the configured threshold are blocked with HTTP `429`.
+
+## ALB request rate limiting (Phase 5)
+
+WAFv2 is attached to ALB with an IP-based rate rule:
+
+- variable: `alb_rate_limit_per_5m`
+- default: `500` requests per 5 minutes (about **100 req/min**)
+- action: block + return HTTP `429`
 
 ## ECS Exec — kiểm tra RDS / corpus từ trong VPC (không cần bastion VPN)
 

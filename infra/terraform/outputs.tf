@@ -3,6 +3,11 @@ output "alb_dns_name" {
   value       = aws_lb.main.dns_name
 }
 
+output "waf_web_acl_arn" {
+  description = "WAFv2 ACL attached to ALB for request rate limiting."
+  value       = aws_wafv2_web_acl.api.arn
+}
+
 output "ecr_repository_url" {
   description = "docker tag && docker push target."
   value       = aws_ecr_repository.api.repository_url

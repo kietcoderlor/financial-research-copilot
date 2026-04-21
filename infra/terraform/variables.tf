@@ -42,3 +42,9 @@ variable "cohere_api_key" {
   default     = ""
   sensitive   = true
 }
+
+variable "alb_rate_limit_per_5m" {
+  type        = number
+  description = "WAFv2 rate limit window is 5 minutes. 500 = ~100 req/min."
+  default     = 500
+}

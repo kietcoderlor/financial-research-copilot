@@ -28,7 +28,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 | **P2** Ingestion Pipeline | 15 | 15 | Complete |
 | **P3** Retrieval Layer | 9 | 9 | Complete |
 | **P4** Generation & Citations | 9 | 9 | Complete |
-| **P5** Frontend & Integration | 12 | 9 | In progress |
+| **P5** Frontend & Integration | 12 | 10 | In progress |
 | **P6** Evaluation & Portfolio | 9 | 0 | Not started |
 | **INFRA** Cross-cutting | 5 | 0 | Not started |
 
@@ -170,7 +170,7 @@ This document breaks down the Financial Research Copilot project into **concrete
 | P5-9 | **API wiring** – Wire QueryInput submit → call `apiClient.query()` → update AnswerDisplay + CitationPanel state. Handle loading, error, and empty states. Log query + response in browser console in development. | M | P5-8 | DONE |
 | P5-10 | **Vercel deployment** – Push Next.js repo to GitHub. Connect to Vercel. Set `NEXT_PUBLIC_API_URL` env var in Vercel project settings. Confirm deployment succeeds and page loads at Vercel URL. | S | P5-9 | - |
 | P5-11 | **End-to-end browser test** – Open Vercel URL in incognito browser. Submit 3 different queries with different filter combinations. Confirm answers and citations render correctly. Confirm error state shows when API is unreachable. | S | P5-10 | - |
-| P5-12 | **ALB rate limiting** – Configure API Gateway or ALB to limit to 100 requests/minute. Confirm 429 is returned on excess and handled gracefully by the frontend error banner. | S | P1-14 | - |
+| P5-12 | **ALB rate limiting** – Configure API Gateway or ALB to limit to 100 requests/minute. Confirm 429 is returned on excess and handled gracefully by the frontend error banner. | S | P1-14 | DONE |
 
 **Definition of done (Phase 5):** Open Vercel URL in incognito browser, ask a question, receive a cited answer. FilterPanel restricts results correctly. Error state shows gracefully when API is unreachable. Loading skeleton shows during API call. No hardcoded credentials anywhere in frontend code.
 
