@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.health import router as health_router
@@ -31,6 +32,13 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
     application.add_middleware(LoggingMiddleware)
+    application.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:3000"],
+        allow_origin_regex=r"https://.*\.vercel\.app",
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
     application.add_exception_handler(StarletteHTTPException, http_exception_handler)
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
     application.add_exception_handler(Exception, generic_exception_handler)
