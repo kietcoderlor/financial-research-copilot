@@ -9,15 +9,16 @@ A retrieval-augmented research assistant over financial documents (SEC filings, 
 ## Architecture
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{"fontFamily":"ui-sans-serif,system-ui,sans-serif","background":"#f0f9ff","primaryColor":"#7dd3fc","primaryTextColor":"#0c4a6e","primaryBorderColor":"#0284c7","secondaryColor":"#bae6fd","tertiaryColor":"#e0f2fe","lineColor":"#0369a1","clusterBkg":"#e0f2fe","clusterBorder":"#0ea5e9","titleColor":"#075985"}}}%%
 flowchart LR
-  subgraph client
+  subgraph client["Client"]
     B[Browser]
   end
-  subgraph edge
+  subgraph edge["Edge"]
     V[Vercel Next.js]
     ALB[Application Load Balancer]
   end
-  subgraph aws[AWS]
+  subgraph aws["AWS"]
     API[ECS Fargate API]
     W[Ingestion worker]
     S3[S3 raw docs]
@@ -34,6 +35,23 @@ flowchart LR
   Q --> W
   W --> S3
   W --> RDS
+
+  style client fill:#f8fcff,stroke:#38bdf8,stroke-width:2px
+  style edge fill:#e0f2fe,stroke:#0ea5e9,stroke-width:2px
+  style aws fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+
+  classDef nCore fill:#38bdf8,stroke:#0369a1,color:#082f49,stroke-width:1.5px
+  classDef nEdge fill:#7dd3fc,stroke:#0284c7,color:#0c4a6e,stroke-width:1.5px
+  classDef nStore fill:#22d3ee,stroke:#0891b2,color:#164e63,stroke-width:1.5px
+  classDef nUser fill:#f0f9ff,stroke:#0ea5e9,color:#0c4a6e,stroke-width:1.5px
+
+  class B nUser
+  class V,ALB nEdge
+  class API,W nCore
+  class S3,Q nEdge
+  class RDS,R nStore
+
+  linkStyle default stroke:#0369a1,stroke-width:2px
 ```
 
 Local development replaces ECS/ALB with Docker Compose services (`api`, `worker`, `postgres`, `redis`, ElasticMQ). See [doc/high-level-architecture.md](doc/high-level-architecture.md) for detail.
