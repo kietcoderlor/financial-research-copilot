@@ -2,6 +2,7 @@
 
 A retrieval-augmented research assistant over financial documents (SEC filings, transcripts, letters). The API hybrid-retrieves chunks from Postgres + pgvector, reranks with Cohere, then answers with Claude using explicit citations to source chunks.
 **Repository:** [github.com/kietcoderlor/financial-research-copilot](https://github.com/kietcoderlor/financial-research-copilot)
+
 ---
 
 ## Architecture
