@@ -2,7 +2,7 @@
 
 This document extends [developer-tasks.md](developer-tasks.md) with **Phase 7** — the work that turns a completed V1 into a portfolio project strong enough for FAANG SWE/AI intern applications. Phase 7 assumes Phases 1–6 are complete (or near-complete).
 
-**See also:** [phase7-implementation-guide.md](phase7-implementation-guide.md) · [retrieval-debug-investigation.md](retrieval-debug-investigation.md) · [interview-prep-tracker.md](interview-prep-tracker.md) · [project-overview.md](project-overview.md)
+**See also:** [phase7-implementation-guide.md](phase7-implementation-guide.md) · [retrieval-debug-investigation.md](retrieval-debug-investigation.md) · [project-overview.md](project-overview.md)
 
 ---
 
@@ -141,7 +141,7 @@ Phase 7 is designed to be executed in order. Dependencies flow roughly: DEBUG �
 19. Update README with all new numbers and decisions
 20. Record new demo video showing streaming + multi-hop
 21. Write one technical blog post explaining one decision: "Why I chose HNSW over IVFFlat" or "How semantic caching reduced p95 by 60%"
-22. Update `interview-prep-tracker.md` with final numbers and rehearse
+22. Update personal interview notes with final metrics (from evals + table below) and rehearse
 
 **MVP shortcut if time-constrained:** DEBUG → A1 → A2 → A4 → B2 → B5 → B7 → C1 → C2. Produces a scalable, tested, measured system with streaming demo and automated eval — enough for a strong portfolio piece. Skip B3/B4/A5/C5 if needed.
 
@@ -149,7 +149,7 @@ Phase 7 is designed to be executed in order. Dependencies flow roughly: DEBUG �
 
 ## FAANG-Specific Interview Prep Mapping
 
-Each Phase 7 task is designed to produce at least one of: a **resume bullet**, a **system design talking point**, or a **behavioral story**. See `interview-prep-tracker.md` for the full mapping.
+Each Phase 7 task is designed to produce at least one of: a **resume bullet**, a **system design talking point**, or a **behavioral story**. Use the mapping table below as the checklist.
 
 | Interview round | Tasks that produce material |
 |-----------------|------------------------------|
@@ -159,7 +159,7 @@ Each Phase 7 task is designed to produce at least one of: a **resume bullet**, a
 | **Behavioral (STAR)** | P7-DEBUG (debug), P7-C5 (reliability), P7-A4 (performance), P6-5 / P7-B5 (iteration), P7-A3 / P7-B7 (tradeoff) |
 | **ML-focused round** | P7-B1 (classification), P7-B4 (hallucination), P7-B5 (eval rigor), P6-2 (offline eval design) |
 
-Before interviews, write a 2-minute script for each talking point. See `interview-prep-tracker.md` for templates.
+Before interviews, write a 2-minute script for each talking point you can credibly claim from completed tasks (STAR format where it helps).
 
 ---
 
