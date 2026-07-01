@@ -31,6 +31,8 @@ export type QueryMetadata = {
   llm_cost_usd: number;
   total_ms: number;
   cache_hit: boolean;
+  semantic_cache_hit?: boolean;
+  hallucination_flags?: string[];
 };
 
 export type QueryResponse = {

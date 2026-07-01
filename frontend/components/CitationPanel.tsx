@@ -4,6 +4,13 @@ import { useState } from "react";
 
 import type { QueryCitation } from "@/lib/apiClient";
 
+const DOC_COLORS: Record<string, string> = {
+  "10-K": "text-sky-300 border-sky-500/30 bg-sky-500/10",
+  "10-Q": "text-violet-300 border-violet-500/30 bg-violet-500/10",
+  transcript: "text-amber-300 border-amber-500/30 bg-amber-500/10",
+  letter: "text-rose-300 border-rose-500/30 bg-rose-500/10",
+};
+
 type CitationPanelProps = {
   citations: QueryCitation[];
 };
@@ -12,91 +19,67 @@ export function CitationPanel({ citations }: CitationPanelProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   if (citations.length === 0) {
-    return (
-      <section className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm ring-1 ring-stone-950/5">
-        <h2 className="mb-2 text-base font-semibold tracking-tight text-stone-900">Sources</h2>
-        <p className="text-sm leading-relaxed text-stone-700">
-          Numbered excerpts from retrieved chunks will appear here after a successful query.
-        </p>
-      </section>
-    );
+    return null;
   }
 
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-5 shadow-sm ring-1 ring-stone-950/5">
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-2 border-b border-stone-200 pb-3">
-        <h2 className="text-base font-semibold tracking-tight text-stone-900">Sources</h2>
-        <p className="text-xs text-stone-600">{citations.length} excerpt{citations.length === 1 ? "" : "s"}</p>
+    <section className="glass-panel rounded-2xl p-6">
+      <div className="mb-5 flex items-end justify-between gap-2 border-b border-white/10 pb-4">
+        <div>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Evidence</p>
+          <h2 className="mt-1 text-lg font-semibold text-[var(--text-primary)]">Source excerpts</h2>
+        </div>
+        <span className="font-mono text-xs text-slate-500">{citations.length} chunks</span>
       </div>
 
-      <ol className="list-none space-y-0 divide-y divide-stone-200">
+      <div className="grid gap-3 sm:grid-cols-2">
         {citations.map((citation) => {
           const key = citation.chunk_id;
           const isOpen = Boolean(expanded[key]);
           const excerpt = citation.excerpt.trim();
-          const preview = excerpt.length > 220 ? `${excerpt.slice(0, 220)}…` : excerpt;
+          const preview = excerpt.length > 180 ? `${excerpt.slice(0, 180)}…` : excerpt;
+          const docStyle = DOC_COLORS[citation.doc_type] ?? "text-slate-300 border-white/20 bg-white/5";
 
           return (
-            <li key={key} className="flex gap-0 py-4 first:pt-0">
-              <div
-                className="mr-4 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-sm font-bold text-white shadow-inner"
-                aria-hidden
-              >
-                {citation.index}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
-                  <span className="text-sm font-bold tracking-normal text-slate-900">{citation.company}</span>
-                  <span className="text-stone-400" aria-hidden>
-                    ·
-                  </span>
-                  <span>{citation.doc_type}</span>
-                  {citation.year != null ? (
-                    <>
-                      <span className="text-stone-400" aria-hidden>
-                        ·
-                      </span>
-                      <span>{citation.year}</span>
-                    </>
-                  ) : null}
+            <article
+              key={key}
+              className="group rounded-xl border border-white/10 bg-white/[0.02] p-4 transition hover:border-white/20 hover:bg-white/[0.04]"
+            >
+              <div className="flex items-start gap-3">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-600 text-sm font-bold text-white shadow-lg shadow-emerald-900/30">
+                  {citation.index}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-white">{citation.company}</span>
+                    <span className={`rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase ${docStyle}`}>
+                      {citation.doc_type}
+                    </span>
+                    {citation.year != null ? (
+                      <span className="font-mono text-[10px] text-slate-500">{citation.year}</span>
+                    ) : null}
+                  </div>
                   {citation.section ? (
-                    <>
-                      <span className="text-stone-400" aria-hidden>
-                        ·
-                      </span>
-                      <span className="font-medium normal-case text-stone-600">{citation.section}</span>
-                    </>
-                  ) : null}
-                </div>
-
-                <blockquote className="mt-2 border-l-[3px] border-teal-700 bg-stone-50/90 py-2 pl-3 pr-2 text-sm font-normal leading-relaxed text-stone-900">
-                  {isOpen ? excerpt : preview}
-                </blockquote>
-
-                <div className="mt-2 flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setExpanded((prev) => ({ ...prev, [key]: !isOpen }))}
-                    className="text-xs font-semibold text-teal-800 underline-offset-2 hover:underline"
-                  >
-                    {isOpen ? "Show less" : "Expand excerpt"}
-                  </button>
-                  {citation.source_url ? (
-                    <a
-                      href={citation.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs font-semibold text-slate-700 underline-offset-2 hover:underline"
-                    >
-                      Open source
-                    </a>
+                    <p className="mt-1 text-[11px] text-slate-500">{citation.section}</p>
                   ) : null}
                 </div>
               </div>
-            </li>
+
+              <blockquote className="mt-3 border-l-2 border-emerald-500/50 pl-3 text-sm leading-relaxed text-slate-300">
+                {isOpen ? excerpt : preview}
+              </blockquote>
+
+              <button
+                type="button"
+                onClick={() => setExpanded((prev) => ({ ...prev, [key]: !isOpen }))}
+                className="mt-3 text-xs font-medium text-emerald-400/90 transition hover:text-emerald-300"
+              >
+                {isOpen ? "Collapse" : "Read full excerpt"}
+              </button>
+            </article>
           );
         })}
-      </ol>
+      </div>
     </section>
   );
 }

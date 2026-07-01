@@ -16,10 +16,12 @@ from app.core.config import settings
 from app.db.models import Document, DocumentChunk
 from app.db.session import get_session
 from app.generation.citation_parser import extract_citation_indices, resolve_citations
-from app.generation.classifier import classify_query, query_type_instructions
+from app.generation.classifier import query_type_instructions
 from app.generation.context_builder import build_context
+from app.generation.hallucination import detect_hallucination_flags
 from app.generation.llm import generate_answer
 from app.generation.query_cache import cache_key, get_cached, put_cached
+from app.generation.semantic_cache import get_semantic_cached, put_semantic_cached
 from app.models.requests import QueryRequest, RetrieveFilters
 from app.models.responses import (
     QueryCitationResponse,
@@ -27,6 +29,7 @@ from app.models.responses import (
     QueryResponse,
 )
 from app.retrieval.pipeline import retrieve
+from app.retrieval.router import route_query
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/query", tags=["query"])
@@ -48,7 +51,6 @@ _STOPWORDS = {
     "would",
     "could",
     "should",
-    "apple",
 }
 
 
@@ -100,7 +102,7 @@ def _context_sufficient(question: str, chunks: list[DocumentChunk | object]) -> 
     if not c_tokens:
         return False
     overlap = len(q_tokens & c_tokens) / max(1, len(q_tokens))
-    return overlap >= 0.15
+    return overlap >= 0.08
 
 
 def _fallback_answer_with_citations(chunks: list[DocumentChunk | object]) -> str:
@@ -136,15 +138,47 @@ async def post_query(
         metadata["total_ms"] = _ms(t_total)
         metadata["cache_hit"] = True
         cached["metadata"] = metadata
-        logger.info("query_cache event=hit")
+        logger.info("query_cache event=exact_hit")
         return QueryResponse.model_validate(cached)
+
+    semantic = get_semantic_cached(question, filters.model_dump())
+    if semantic:
+        metadata = semantic.get("metadata", {})
+        metadata["retrieval_ms"] = 0
+        metadata["llm_ms"] = 0
+        metadata["total_ms"] = _ms(t_total)
+        metadata["cache_hit"] = True
+        metadata["semantic_cache_hit"] = True
+        semantic["metadata"] = metadata
+        logger.info("query_cache event=semantic_hit")
+        return QueryResponse.model_validate(semantic)
     logger.info("query_cache event=miss")
+
+    query_type = route_query(question)
+    if query_type == "adversarial":
+        response = QueryResponse(
+            answer=_INSUFFICIENT,
+            citations=[],
+            metadata=QueryMetadataResponse(
+                query_type=query_type,
+                chunks_retrieved=0,
+                chunks_used=0,
+                retrieval_ms=0,
+                llm_ms=0,
+                input_tokens=0,
+                output_tokens=0,
+                llm_cost_usd=0.0,
+                total_ms=_ms(t_total),
+                cache_hit=False,
+            ),
+        )
+        put_cached(key, response.model_dump(mode="json"))
+        return response
 
     t_retr = time.perf_counter()
     retrieval = await asyncio.to_thread(retrieve, question, filters, top_k=20, top_n=5)
     retrieval_ms = _ms(t_retr)
 
-    query_type = classify_query(question)
     ctx, kept_chunks = build_context(retrieval.chunks)
     extra_inst = query_type_instructions(query_type)
 
@@ -192,6 +226,8 @@ async def post_query(
         for i, c in resolved
     ]
 
+    flags = detect_hallucination_flags(llm.answer_text, [c for _, c in resolved])
+
     response = QueryResponse(
         answer=llm.answer_text,
         citations=citations,
@@ -206,14 +242,18 @@ async def post_query(
             llm_cost_usd=llm.cost_usd,
             total_ms=_ms(t_total),
             cache_hit=False,
+            hallucination_flags=flags,
         ),
     )
     logger.info(
-        "query_latency retrieval_ms=%s llm_ms=%s total_ms=%s llm_cost_usd=%.6f",
+        "query_latency retrieval_ms=%s llm_ms=%s total_ms=%s llm_cost_usd=%.6f flags=%s",
         retrieval_ms,
         llm_ms,
         response.metadata.total_ms,
         llm.cost_usd,
+        len(flags),
     )
-    put_cached(key, response.model_dump(mode="json"))
+    payload = response.model_dump(mode="json")
+    put_cached(key, payload)
+    put_semantic_cached(question, filters.model_dump(), payload)
     return response

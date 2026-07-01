@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.endpoint_cache import endpoint_cache_key, get_endpoint_cached, put_endpoint_cached
 from app.db.models import DocumentChunk
 from app.db.session import get_session
 from app.models.requests import RetrieveRequest
@@ -51,6 +52,12 @@ async def post_retrieve(
     filters = normalize_filters(body.filters)
     await _validate_companies(filters.companies, session)
 
+    cache_payload = {"query": query, "filters": filters.model_dump()}
+    ckey = endpoint_cache_key("retrieve", cache_payload)
+    cached = get_endpoint_cached(ckey)
+    if cached:
+        return RetrieveResponse.model_validate(cached)
+
     result = await asyncio.to_thread(retrieve, query, filters, top_k=20, top_n=5)
     lat = result.latency_breakdown
     logger.info(
@@ -61,7 +68,7 @@ async def post_retrieve(
         lat["rerank_ms"],
         lat["total_ms"],
     )
-    return RetrieveResponse(
+    response = RetrieveResponse(
         chunks=[
             RetrieveChunkResponse(
                 id=c.id,
@@ -82,3 +89,5 @@ async def post_retrieve(
             total_ms=lat["total_ms"],
         ),
     )
+    put_endpoint_cached(ckey, response.model_dump(mode="json"))
+    return response

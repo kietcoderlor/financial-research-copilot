@@ -1,0 +1,57 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "alembic/**"
+      - "requirements*.txt"
+      - "pytest.ini"
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "tests/**"
+      - "alembic/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: copilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d copilot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/copilot
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Run migrations
+        run: python -m alembic upgrade head
+      - name: Alembic migration drift check
+        run: |
+          python -m alembic revision --autogenerate -m "ci_drift_check" --rev-id ci_drift_check
+          if git diff --name-only | grep -q "alembic/versions/ci_drift_check"; then
+            echo "Uncommitted schema changes detected without migration"
+            git diff alembic/
+            exit 1
+          fi
+          rm -f alembic/versions/ci_drift_check.py
+      - name: Pytest
+        run: pytest -q

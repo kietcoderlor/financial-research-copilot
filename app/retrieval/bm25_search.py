@@ -17,7 +17,7 @@ def search_bm25(
     *,
     limit: int = 20,
 ) -> list[ChunkResult]:
-    where = ["tsv @@ plainto_tsquery('english', :query)"]
+    where = ["tsv @@ websearch_to_tsquery('english', :query)"]
     params: dict[str, object] = {"query": query, "limit": int(limit)}
     if filters.companies:
         where.append("company_ticker = ANY(:companies)")
@@ -38,7 +38,7 @@ def search_bm25(
           doc_type,
           year,
           section,
-          ts_rank(tsv, plainto_tsquery('english', :query))::float AS score
+          ts_rank(tsv, websearch_to_tsquery('english', :query))::float AS score
         FROM document_chunks
         WHERE {" AND ".join(where)}
         ORDER BY score DESC

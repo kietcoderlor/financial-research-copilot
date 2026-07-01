@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     anthropic_api_key: str | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     cohere_api_key: str | None = Field(default=None, validation_alias="COHERE_API_KEY")
 
+    query_cache_ttl_seconds: int = Field(default=3600, validation_alias="QUERY_CACHE_TTL_SECONDS")
+    semantic_cache_threshold: float = Field(default=0.92, validation_alias="SEMANTIC_CACHE_THRESHOLD")
+
     sec_edgar_company_name: str = Field(
         default="FinancialResearchCopilot",
         validation_alias="SEC_EDGAR_COMPANY_NAME",

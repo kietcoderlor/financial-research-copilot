@@ -29,8 +29,8 @@ This document breaks down the Financial Research Copilot project into **concrete
 | **P3** Retrieval Layer | 9 | 9 | Complete |
 | **P4** Generation & Citations | 9 | 9 | Complete |
 | **P5** Frontend & Integration | 12 | 12 | Complete |
-| **P6** Evaluation & Portfolio | 9 | 0 | Not started |
-| **INFRA** Cross-cutting | 5 | 0 | Not started |
+| **P6** Evaluation & Portfolio | 9 | 7 | Local-complete (video/resume manual) |
+| **INFRA** Cross-cutting | 5 | 3 | Local-complete (AWS monitoring deferred) |
 
 ---
 

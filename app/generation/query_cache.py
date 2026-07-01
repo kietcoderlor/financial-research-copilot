@@ -10,8 +10,6 @@ from redis import Redis
 from redis.exceptions import RedisError
 
 from app.core.config import settings
-
-_TTL_SECONDS = 24 * 3600
 _CACHE_VERSION = "v3"
 
 
@@ -39,6 +37,6 @@ def get_cached(key: str) -> dict[str, Any] | None:
 
 def put_cached(key: str, value: dict[str, Any]) -> None:
     try:
-        _client().setex(key, _TTL_SECONDS, json.dumps(value, ensure_ascii=True))
+        _client().setex(key, settings.query_cache_ttl_seconds, json.dumps(value, ensure_ascii=True))
     except RedisError:
         return

@@ -1,59 +1,156 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+:root,
+[data-theme="dark"] {
+  --bg-base: #070b12;
+  --bg-elevated: #0f1623;
+  --bg-surface: #141d2e;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #34d399;
+  --accent-dim: rgba(52, 211, 153, 0.15);
+  --grid-line: rgba(255, 255, 255, 0.03);
+  --glow: rgba(52, 211, 153, 0.12);
+  --header-bg: rgba(7, 11, 18, 0.85);
+  --sidebar-bg: #0a0f18;
+}
+
+[data-theme="light"] {
+  --bg-base: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-surface: #ffffff;
+  --border-subtle: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --accent: #059669;
+  --accent-dim: rgba(5, 150, 105, 0.12);
+  --grid-line: rgba(15, 23, 42, 0.04);
+  --glow: rgba(5, 150, 105, 0.08);
+  --header-bg: rgba(255, 255, 255, 0.9);
+  --sidebar-bg: #ffffff;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Markdown answer: force high-contrast body text (Tailwind Typography may be absent). */
-.answer-markdown p,
-.answer-markdown li,
-.answer-markdown blockquote,
-.answer-markdown td,
-.answer-markdown th {
-  color: rgb(28 25 23);
+.app-shell {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
 }
 
-.answer-markdown strong {
-  color: rgb(12 10 9);
+.app-grid-bg {
+  background-color: var(--bg-base);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--glow), transparent),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+}
+
+.app-sidebar {
+  background: var(--sidebar-bg);
+  border-color: var(--border-subtle);
+}
+
+.app-header {
+  background: var(--header-bg);
+  border-color: var(--border-subtle);
+}
+
+.glass-panel {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--bg-surface) 92%, transparent), color-mix(in srgb, var(--bg-elevated) 88%, transparent));
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--border-subtle) 50%, transparent), 0 12px 40px -16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+}
+
+.chip-ticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
+  padding: 0.2rem 0.65rem;
+  font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.answer-markdown {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.75;
 }
 
 .answer-markdown p {
-  margin-top: 0.65em;
-  margin-bottom: 0.65em;
+  margin: 0.75em 0;
 }
 
 .answer-markdown p:first-child {
   margin-top: 0;
 }
 
+.answer-markdown strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .answer-markdown ul,
 .answer-markdown ol {
-  margin: 0.5em 0 0.5em 1.1em;
-  padding-left: 0.25em;
+  margin: 0.65em 0;
+  padding-left: 1.25em;
 }
 
 .answer-markdown li {
-  margin: 0.25em 0;
+  margin: 0.35em 0;
+}
+
+.answer-markdown h1,
+.answer-markdown h2,
+.answer-markdown h3 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 1.25em 0 0.5em;
+}
+
+.answer-markdown h1 {
+  font-size: 1.15rem;
+}
+
+.answer-markdown h2 {
+  font-size: 1.05rem;
+}
+
+.answer-markdown h3 {
+  font-size: 0.95rem;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.pipeline-dot {
+  animation: pulse-glow 1.4s ease-in-out infinite;
 }

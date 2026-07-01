@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
 import anthropic
 
 from app.core.config import settings
+from app.core.pricing import compute_llm_cost_usd
 
 logger = logging.getLogger(__name__)
 _PROMPT_PATH = Path(__file__).with_name("prompts") / "system_prompt.txt"
@@ -34,6 +36,31 @@ def _build_user_content(query: str, query_type: str, context_str: str, extra_ins
         f"Question:\n{query}\n\n"
         f"Context:\n{context_str}\n"
     )
+
+
+def generate_answer_stream(
+    *,
+    query: str,
+    context_str: str,
+    query_type: str,
+    extra_instruction: str,
+) -> Iterator[str]:
+    """Yield text deltas from Anthropic streaming API."""
+    if not settings.anthropic_api_key:
+        yield "I don't have sufficient information in the provided documents."
+        return
+
+    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    user_content = _build_user_content(query, query_type, context_str, extra_instruction)
+    with client.messages.stream(
+        model=_MODEL,
+        max_tokens=2048,
+        system=_system_prompt(),
+        messages=[{"role": "user", "content": user_content}],
+    ) as stream:
+        for event in stream.text_stream:
+            if event:
+                yield event
 
 
 def generate_answer(
@@ -68,8 +95,7 @@ def generate_answer(
         usage = getattr(msg, "usage", None)
         in_tokens = int(getattr(usage, "input_tokens", 0))
         out_tokens = int(getattr(usage, "output_tokens", 0))
-        # Rough estimate for Sonnet-class pricing; adjust in ops if model pricing changes.
-        cost = (in_tokens / 1_000_000) * 3.0 + (out_tokens / 1_000_000) * 15.0
+        cost = compute_llm_cost_usd(_MODEL, in_tokens, out_tokens)
         return LLMResponse(
             answer_text=text
             or "I don't have sufficient information in the provided documents.",

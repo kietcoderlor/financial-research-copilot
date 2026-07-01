@@ -64,6 +64,8 @@ class QueryMetadataResponse(BaseModel):
     llm_cost_usd: float = 0.0
     total_ms: int
     cache_hit: bool = False
+    semantic_cache_hit: bool = False
+    hallucination_flags: list[str] = Field(default_factory=list)
 
 
 class QueryResponse(BaseModel):

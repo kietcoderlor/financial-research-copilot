@@ -6,21 +6,19 @@ type ErrorBannerProps = {
 };
 
 export function ErrorBanner({ error, onRetry }: ErrorBannerProps) {
-  if (!error) {
-    return null;
-  }
+  if (!error) return null;
   return (
     <section
-      className="rounded-xl border border-red-200/90 bg-red-50/95 p-4 shadow-sm ring-1 ring-red-900/10"
+      className="rounded-xl border border-red-500/30 bg-red-500/10 p-4"
       role="alert"
     >
-      <p className="text-sm font-medium leading-relaxed text-red-950">{error}</p>
+      <p className="text-sm font-medium text-red-200">{error}</p>
       <button
         type="button"
         onClick={onRetry}
-        className="mt-3 rounded-lg border border-red-300/90 bg-white px-3 py-1.5 text-xs font-semibold text-red-900 shadow-sm transition hover:bg-red-50"
+        className="mt-3 rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-200 transition hover:bg-red-500/20"
       >
-        Retry
+        Retry query
       </button>
     </section>
   );

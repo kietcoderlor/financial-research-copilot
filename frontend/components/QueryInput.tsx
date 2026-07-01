@@ -8,15 +8,17 @@ type QueryInputProps = {
 };
 
 const EXAMPLES = [
-  "Apple risk factors 2024",
-  "Compare Apple and Berkshire business risks",
-  "Bull and bear case for Apple in 2024 filings",
+  "Tesla risk factors 2024",
+  "Compare Apple and Microsoft cloud growth",
+  "Goldman Sachs risk factors",
 ];
 
 export function QueryInput({ value, loading, onChange, onSubmit }: QueryInputProps) {
   return (
-    <section className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm ring-1 ring-stone-950/5">
-      <label className="mb-2 block text-sm font-semibold text-stone-900">Question</label>
+    <section className="glass-panel rounded-2xl p-5">
+      <label className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+        Research question
+      </label>
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -26,29 +28,43 @@ export function QueryInput({ value, loading, onChange, onSubmit }: QueryInputPro
             onSubmit();
           }
         }}
-        rows={5}
-        placeholder="Ask about filings, transcripts, or compare companies..."
-        className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-sm leading-relaxed text-stone-900 placeholder:text-stone-500 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/25"
+        rows={4}
+        placeholder="e.g. What are Tesla's margin drivers in Q2 2024?"
+        className="w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
       />
-      <div className="mt-2 flex items-center justify-between text-xs text-stone-600">
-        <span>Press Ctrl+Enter to submit</span>
-        <span className="tabular-nums text-stone-700">{value.length} chars</span>
+      <div className="mt-3 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
+        <span>Ctrl + Enter to run</span>
+        <span className="font-mono">{value.length}</span>
       </div>
+
       <button
         type="button"
         onClick={onSubmit}
         disabled={loading || value.trim().length === 0}
-        className="mt-3 w-full rounded-lg bg-teal-700 px-3 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500 disabled:shadow-none"
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-cyan-500 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
       >
-        {loading ? "Searching…" : "Run query"}
+        {loading ? (
+          <>
+            <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Running pipeline…
+          </>
+        ) : (
+          <>
+            <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+            </svg>
+            Run research query
+          </>
+        )}
       </button>
-      <div className="mt-3 flex flex-wrap gap-2">
+
+      <div className="mt-4 flex flex-wrap gap-2">
         {EXAMPLES.map((example) => (
           <button
             type="button"
             key={example}
             onClick={() => onChange(example)}
-            className="rounded-md border border-stone-300 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-800 transition hover:border-stone-400 hover:bg-white"
+            className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
           >
             {example}
           </button>

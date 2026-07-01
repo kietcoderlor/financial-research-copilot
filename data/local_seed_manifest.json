@@ -1,0 +1,127 @@
+[
+  {
+    "ticker": "AAPL",
+    "company_name": "Apple Inc.",
+    "doc_type": "10-K",
+    "year": 2023,
+    "filename": "aapl_10k_2023.txt",
+    "text": "UNITED STATES SECURITIES AND EXCHANGE COMMISSION\nForm 10-K\nApple Inc.\n\nItem 1. Business.\nApple Inc. designs, manufactures and markets smartphones, personal computers, tablets, wearables and accessories worldwide. The Company sells its products through direct and indirect distribution channels. Services include advertising, AppleCare, cloud services, digital content and payment services.\n\nItem 1A. Risk Factors.\nThe Company's business, results of operations and financial condition could be materially adversely affected by global economic conditions, competition, supply chain constraints, dependence on outsourcing partners, and rapid technological change. Foreign exchange fluctuations may impact gross margin. Regulatory changes in the EU and U.S. could increase compliance costs.\n\nItem 7. Management's Discussion and Analysis.\nNet sales increased year over year driven by iPhone and Services. Gross margin was approximately 44% reflecting favorable product mix and cost discipline. The Company returned capital to shareholders through dividends and share repurchases."
+  },
+  {
+    "ticker": "AAPL",
+    "company_name": "Apple Inc.",
+    "doc_type": "10-Q",
+    "year": 2024,
+    "quarter": 3,
+    "filename": "aapl_10q_2024_q3.txt",
+    "text": "Apple Inc. Quarterly Report on Form 10-Q\nFor the quarterly period ended June 2024\n\nPart I — Financial Information\nItem 2. Management's Discussion and Analysis of Financial Condition and Results of Operations.\nTotal net sales for the third quarter of 2024 were $85.8 billion, up 5% compared to the prior year quarter. iPhone revenue grew modestly. Services revenue reached a record driven by App Store and cloud offerings. Gross margin was 46.3%, up 70 basis points year over year due to favorable Services mix.\n\nLiquidity and Capital Resources.\nThe Company maintained strong liquidity with $62 billion in cash and marketable securities. Capital allocation included $25 billion in share repurchases and $3.8 billion in dividends during the quarter.\n\nItem 1A. Risk Factors.\nRisk factors include macroeconomic uncertainty, geopolitical tensions affecting supply chain, and intense competition in smartphones and AI-enabled devices."
+  },
+  {
+    "ticker": "AAPL",
+    "company_name": "Apple Inc.",
+    "doc_type": "transcript",
+    "year": 2024,
+    "quarter": 3,
+    "filename": "aapl_transcript_2024_q3.txt",
+    "text": "Apple Inc. Q3 2024 Earnings Call Transcript\n\nOperator: Welcome to Apple's third quarter fiscal 2024 earnings conference call.\n\nTim Cook, CEO — Prepared Remarks:\nWe are pleased to report record Services revenue and strong iPhone performance in emerging markets. Customer satisfaction remains industry leading.\n\nLuca Maestri, CFO — Prepared Remarks:\nGross margin was 46.3%, up year over year. We expect gross margin between 45.5% and 46.5% for the next quarter. Operating expenses grew 6% reflecting R&D investments in on-device intelligence.\n\nQ&A Session:\nAnalyst: Can you discuss margin drivers for Services?\nCFO: Services carry structurally higher margins than hardware. As the installed base grows, we see continued momentum in advertising and cloud.\nAnalyst: What is the outlook for iPhone upgrade cycle?\nCEO: We see healthy demand for our latest lineup and strong trade-in activity."
+  },
+  {
+    "ticker": "MSFT",
+    "company_name": "Microsoft Corporation",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "msft_10k_2024.txt",
+    "text": "Microsoft Corporation Form 10-K\n\nItem 1. Business.\nMicrosoft is a technology company whose mission is to empower every person and organization on the planet to achieve more. We generate revenue by licensing and supporting software, cloud services, devices, and gaming content.\n\nItem 7. Management's Discussion and Analysis.\nIntelligent Cloud revenue grew 20% driven by Azure and other cloud services. Productivity and Business Processes revenue increased due to Microsoft 365 Commercial. More customers are adopting AI Copilot capabilities across the stack.\n\nItem 1A. Risk Factors.\nRisks include cybersecurity incidents, competition in cloud and AI, regulatory scrutiny, and foreign currency headwinds."
+  },
+  {
+    "ticker": "MSFT",
+    "company_name": "Microsoft Corporation",
+    "doc_type": "transcript",
+    "year": 2024,
+    "quarter": 3,
+    "filename": "msft_transcript_2024_q3.txt",
+    "text": "Microsoft Corporation Q3 FY2024 Earnings Call\n\nCEO Prepared Remarks:\nAzure growth accelerated as enterprises migrate workloads and adopt AI services. GitHub Copilot and Microsoft 365 Copilot are seeing strong early adoption.\n\nCFO Prepared Remarks:\nCommercial cloud revenue surpassed $35 billion for the quarter. Operating margin expanded modestly despite increased AI infrastructure investment.\n\nAnalyst Q&A:\nAnalyst: How should we think about Azure AI contribution to growth?\nCEO: AI services are embedded across Azure, Dynamics, and Microsoft 365. We see both consumption-based revenue and seat-based Copilot expansion.\nAnalyst: Cloud growth drivers for next year?\nCFO: Migration, data platform modernization, and security attach remain primary drivers."
+  },
+  {
+    "ticker": "TSLA",
+    "company_name": "Tesla Inc.",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "tsla_10k_2024.txt",
+    "text": "Tesla Inc. Annual Report Form 10-K\n\nItem 1. Business.\nTesla designs, develops, manufactures, leases and sells electric vehicles and energy generation and storage systems.\n\nItem 1A. Risk Factors.\nRisks include automotive margin pressure from price competition, execution risk on new models, regulatory credits volatility, and dependence on CEO leadership.\n\nItem 7. MD&A.\nAutomotive gross margin excluding regulatory credits declined year over year due to price reductions. Energy storage deployments grew significantly. Management is focused on reducing cost per vehicle and advancing full self-driving software."
+  },
+  {
+    "ticker": "TSLA",
+    "company_name": "Tesla Inc.",
+    "doc_type": "transcript",
+    "year": 2024,
+    "quarter": 2,
+    "filename": "tsla_transcript_2024_q2.txt",
+    "text": "Tesla Q2 2024 Earnings Call Transcript\n\nCEO: We delivered record energy storage deployments. Automotive margin remains a focus area as we balance volume and affordability.\n\nCFO: Automotive gross margin was 18.5% excluding regulatory credits, down from prior quarter. We guided lower capex intensity in the second half.\n\nAnalyst: Margin guidance for next quarter?\nCFO: We expect margin to remain under pressure near-term due to pricing actions and mix.\n\nAnalyst: Bull case vs execution risks?\nCEO: Long-term upside from autonomy and robotics; near-term bears cite competition in China and margin compression."
+  },
+  {
+    "ticker": "GOOGL",
+    "company_name": "Alphabet Inc.",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "googl_10k_2024.txt",
+    "text": "Alphabet Inc. Form 10-K\n\nItem 1. Business.\nAlphabet's Google segment delivers search, advertising, cloud, YouTube, and Android platforms.\n\nItem 7. MD&A.\nGoogle Cloud revenue growth accelerated with operating profit turning positive. Search remained resilient despite macro uncertainty. AI investments increased operating expenses.\n\nItem 1A. Risk Factors.\nAntitrust remedies, privacy regulation, and AI competition pose material risks."
+  },
+  {
+    "ticker": "GOOGL",
+    "company_name": "Alphabet Inc.",
+    "doc_type": "transcript",
+    "year": 2024,
+    "quarter": 3,
+    "filename": "googl_transcript_2024_q3.txt",
+    "text": "Alphabet Q3 2024 Earnings Call\n\nCEO: Google Cloud grew 28% year over year with improving operating margins. Gemini models are integrated across Search and Workspace.\n\nCFO: CapEx increased to support AI infrastructure. YouTube advertising reaccelerated.\n\nAnalyst: Cloud growth drivers?\nCEO: Enterprise AI workloads, data analytics, and security upsell are key drivers."
+  },
+  {
+    "ticker": "BRK.B",
+    "company_name": "Berkshire Hathaway Inc.",
+    "doc_type": "letter",
+    "year": 2023,
+    "filename": "brk_letter_2023.txt",
+    "text": "Berkshire Hathaway Inc. Shareholder Letter 2023\n\nTo the Shareholders of Berkshire Hathaway Inc.:\n\nOperating earnings reached a record in 2023. Insurance underwriting improved while GEICO implemented rate and efficiency changes. Burlington Northern Santa Fe faced volume headwinds but remains a core franchise.\n\nCharlie Munger's wisdom shaped our culture of rational capital allocation. We maintain a fortress balance sheet with substantial cash and Treasury bills awaiting large opportunities.\n\nWe caution investors against speculative frenzy and emphasize long-term business quality over market timing."
+  },
+  {
+    "ticker": "JPM",
+    "company_name": "JPMorgan Chase & Co.",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "jpm_10k_2024.txt",
+    "text": "JPMorgan Chase & Co. Form 10-K\n\nItem 1A. Risk Factors.\nCredit losses may increase if unemployment rises or commercial real estate values decline. Interest rate volatility affects net interest income. Regulatory capital requirements may constrain returns.\n\nItem 7. MD&A.\nNet interest income grew due to higher rates. Investment banking fees recovered from prior year lows. Credit card spend remained robust while delinquencies ticked higher."
+  },
+  {
+    "ticker": "GS",
+    "company_name": "Goldman Sachs Group Inc.",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "gs_10k_2024.txt",
+    "text": "The Goldman Sachs Group Inc. Form 10-K\n\nItem 1A. Risk Factors.\nMarket-making revenues are volatile. Litigation and regulatory matters may result in significant fines. Consumer banking initiatives faced strategic repositioning.\n\nItem 7. MD&A.\nGlobal Banking & Markets revenue increased on improved trading and advisory activity. Firmwide risk management remains central to operations."
+  },
+  {
+    "ticker": "XOM",
+    "company_name": "Exxon Mobil Corporation",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "xom_10k_2024.txt",
+    "text": "Exxon Mobil Corporation Form 10-K\n\nItem 1A. Risk Factors.\nCommodity price volatility materially affects earnings. Energy transition policies may reduce long-term oil demand. Large projects carry execution and geopolitical risk.\n\nItem 7. MD&A.\nUpstream earnings benefited from production growth in Guyana and the Permian. Refining margins normalized from prior peaks. The Company increased low-carbon investment while returning cash to shareholders."
+  },
+  {
+    "ticker": "WMT",
+    "company_name": "Walmart Inc.",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "wmt_10k_2024.txt",
+    "text": "Walmart Inc. Form 10-K\n\nItem 7. MD&A.\nComparable sales grew driven by grocery and eCommerce. Operating income expanded as inventory management improved. Walmart+ membership and marketplace growth support omnichannel strategy.\n\nItem 1A. Risk Factors.\nCompetitive pressure from discounters and online retailers may affect margins. Wage inflation and shrink remain headwinds."
+  },
+  {
+    "ticker": "UNH",
+    "company_name": "UnitedHealth Group Incorporated",
+    "doc_type": "10-K",
+    "year": 2024,
+    "filename": "unh_10k_2024.txt",
+    "text": "UnitedHealth Group Form 10-K\n\nItem 7. MD&A.\nUnitedHealthcare membership grew in Medicare Advantage. Optum Health services revenue increased from value-based care arrangements. Medical care ratio trended slightly higher due to outpatient utilization.\n\nItem 1A. Risk Factors.\nGovernment program reimbursement changes, cybersecurity breaches, and rising medical costs pose material risks."
+  }
+]

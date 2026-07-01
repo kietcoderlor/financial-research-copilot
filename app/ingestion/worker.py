@@ -29,9 +29,12 @@ def _sync_db_url() -> str:
 
 
 def _s3_client():
+    from botocore.config import Config
+
     kwargs: dict[str, Any] = {"region_name": settings.aws_region}
     if settings.s3_endpoint_url:
         kwargs["endpoint_url"] = settings.s3_endpoint_url
+        kwargs["config"] = Config(s3={"addressing_style": "path"})
     return boto3.client("s3", **kwargs)
 
 

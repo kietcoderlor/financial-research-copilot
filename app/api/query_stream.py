@@ -1,0 +1,111 @@
+"""Streaming query endpoint via SSE (P7-B2)."""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import time
+from collections.abc import AsyncIterator
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from sqlalchemy import distinct, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.query import (
+    _INSUFFICIENT,
+    _context_sufficient,
+    _fetch_source_urls,
+    _ms,
+    _validate_companies,
+)
+from app.core.config import settings
+from app.db.session import get_session
+from app.generation.citation_parser import extract_citation_indices, resolve_citations
+from app.generation.classifier import query_type_instructions
+from app.generation.context_builder import build_context
+from app.generation.llm import generate_answer_stream
+from app.models.requests import QueryRequest, RetrieveFilters
+from app.retrieval.pipeline import retrieve
+from app.retrieval.router import route_query
+
+logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/query", tags=["query"])
+
+
+def _sse(event: str, data: dict) -> str:
+    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=True)}\n\n"
+
+
+@router.post("/stream")
+async def post_query_stream(
+    body: QueryRequest,
+    session: AsyncSession = Depends(get_session),
+) -> StreamingResponse:
+    question = body.question.strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="question must be non-empty")
+
+    filters: RetrieveFilters = body.filters
+    await _validate_companies(filters, session)
+
+    async def event_gen() -> AsyncIterator[str]:
+        t_total = time.perf_counter()
+        query_type = route_query(question)
+        if query_type == "adversarial":
+            yield _sse("token", {"text": _INSUFFICIENT})
+            yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type})
+            return
+
+        retrieval = await asyncio.to_thread(retrieve, question, filters, top_k=20, top_n=5)
+        ctx, kept_chunks = build_context(retrieval.chunks)
+        for i, ch in enumerate(kept_chunks[:5], start=1):
+            yield _sse(
+                "source",
+                {
+                    "index": i,
+                    "company": ch.company,
+                    "doc_type": ch.doc_type,
+                    "year": ch.year,
+                    "section": ch.section,
+                },
+            )
+
+        if not _context_sufficient(question, kept_chunks) or not settings.anthropic_api_key:
+            text = _INSUFFICIENT if not kept_chunks else f"Retrieved {len(kept_chunks)} chunks."
+            yield _sse("token", {"text": text})
+            yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type})
+            return
+
+        extra = query_type_instructions(query_type)
+        full_text = ""
+        for token in generate_answer_stream(
+            query=question,
+            context_str=ctx,
+            query_type=query_type,
+            extra_instruction=extra,
+        ):
+            full_text += token
+            yield _sse("token", {"text": token})
+
+        indices = extract_citation_indices(full_text)
+        resolved = resolve_citations(indices, kept_chunks)
+        source_map = await _fetch_source_urls(session, [c.id for _, c in resolved])
+        citations = [
+            {
+                "index": i,
+                "chunk_id": str(c.id),
+                "company": c.company,
+                "doc_type": c.doc_type,
+                "year": c.year,
+                "section": c.section,
+                "source_url": source_map.get(c.id),
+                "excerpt": (c.text[:400] + "...") if len(c.text) > 400 else c.text,
+            }
+            for i, c in resolved
+        ]
+        yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type, "citations": citations})
+
+    return StreamingResponse(event_gen(), media_type="text/event-stream")

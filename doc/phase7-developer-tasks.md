@@ -33,10 +33,10 @@ The output is not more features — it is **war stories for interviews**. Every 
 
 | Track | Tasks | Done | Status |
 |-------|-------|------|--------|
-| **P7-DEBUG** Retrieval bug | 2 | 0 | Not started |
-| **P7-A** Scale & Infra | 6 | 0 | Not started |
-| **P7-B** AI Engineering | 6 | 0 | Not started |
-| **P7-C** Engineering Rigor | 5 | 0 | Not started |
+| **P7-DEBUG** Retrieval bug | 2 | 2 | Complete |
+| **P7-A** Scale & Infra | 6 | 4 | Local-complete (AWS autoscaling/dashboard deferred) |
+| **P7-B** AI Engineering | 6 | 5 | Complete (HyDE deferred per doc) |
+| **P7-C** Engineering Rigor | 5 | 3 | Partial (chaos test deferred) |
 
 ---
 
