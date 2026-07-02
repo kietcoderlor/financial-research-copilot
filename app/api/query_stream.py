@@ -44,10 +44,10 @@ def _sse(event: str, data: dict) -> str:
 
 @router.post("/stream")
 async def post_query_stream(
+    request: Request,
     body: QueryRequest,
     session: AsyncSession = Depends(get_session),
     _user: User | None = Depends(require_query_auth),
-    request: Request,
 ) -> StreamingResponse:
     question = body.question.strip()
     if not question:

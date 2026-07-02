@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from google.auth.transport import requests as google_requests
@@ -40,7 +40,7 @@ async def get_user_by_id(session: AsyncSession, user_id: UUID) -> User | None:
 async def upsert_user_from_otp(session: AsyncSession, *, email: str) -> User:
     normalized = email.lower()
     user = await get_user_by_email(session, normalized)
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     if user is None:
         user = User(email=normalized, email_verified_at=now)
         session.add(user)
@@ -61,7 +61,7 @@ async def upsert_user_from_google(session: AsyncSession, *, claims: dict) -> Use
     if user is None:
         user = await get_user_by_email(session, email)
 
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     name = claims.get("name")
     picture = claims.get("picture")
 

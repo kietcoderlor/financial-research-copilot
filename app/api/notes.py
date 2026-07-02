@@ -19,9 +19,9 @@ router = APIRouter(prefix="/notes", tags=["notes"])
 
 @router.get("", response_model=list[ResearchNoteResponse])
 async def list_notes(
+    request: Request,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-    request: Request,
     limit: int = Query(default=20, ge=1, le=50),
     offset: int = Query(default=0, ge=0, le=1000),
 ) -> list[ResearchNote]:
@@ -45,10 +45,10 @@ async def list_notes(
 
 @router.post("", response_model=ResearchNoteResponse, status_code=status.HTTP_201_CREATED)
 async def create_note(
+    request: Request,
     body: ResearchNoteCreate,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-    request: Request,
 ) -> ResearchNote:
     client_ip = (request.client.host if request.client else "unknown").strip()
     rate_key = f"rl:notes:create:{current_user.id}:{client_ip}"
@@ -73,10 +73,10 @@ async def create_note(
 
 @router.delete("/{note_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_note(
+    request: Request,
     note_id: UUID,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
-    request: Request,
 ) -> None:
     client_ip = (request.client.host if request.client else "unknown").strip()
     rate_key = f"rl:notes:delete:{current_user.id}:{client_ip}"

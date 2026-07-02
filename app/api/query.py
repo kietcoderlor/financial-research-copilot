@@ -130,10 +130,10 @@ def _is_refusal_answer(text: str) -> bool:
 
 @router.post("", response_model=QueryResponse)
 async def post_query(
+    request: Request,
     body: QueryRequest,
     session: AsyncSession = Depends(get_session),
     _user: User | None = Depends(require_query_auth),
-    request: Request,
 ) -> QueryResponse:
     t_total = time.perf_counter()
     question = body.question.strip()
