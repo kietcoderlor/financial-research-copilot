@@ -76,6 +76,17 @@ export type StreamCallbacks = {
   onDone: (payload: StreamDonePayload) => void;
 };
 
+export type ResearchNote = {
+  id: string;
+  user_id: string;
+  title: string;
+  question: string;
+  answer: string;
+  citations_json: string;
+  created_at: string;
+  updated_at: string;
+};
+
 function errorMessageFromBody(status: number, text: string): string {
   if (!text.trim()) {
     return `Request failed with status ${status}`;
@@ -110,6 +121,18 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(errorMessageFromBody(response.status, text));
+  }
+  return (await response.json()) as T;
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  const response = await fetch(path, {
+    method: "GET",
     cache: "no-store",
   });
   if (!response.ok) {
@@ -176,6 +199,22 @@ export const apiClient = {
     return postJson<QueryResponse>("/api/query", payload);
   },
   queryStream,
+  listNotes(): Promise<ResearchNote[]> {
+    return getJson<ResearchNote[]>("/api/notes");
+  },
+  createNote(payload: { title: string; question: string; answer: string; citations_json: string }): Promise<ResearchNote> {
+    return postJson<ResearchNote>("/api/notes", payload);
+  },
+  async deleteNote(id: string): Promise<void> {
+    const response = await fetch(`/api/notes/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(errorMessageFromBody(response.status, text));
+    }
+  },
   retrieve(query: string, filters: RetrieveFilters): Promise<RetrieveResponse> {
     return postJson<RetrieveResponse>("/api/retrieve", { query, filters });
   },

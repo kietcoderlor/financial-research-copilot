@@ -14,7 +14,7 @@ from app.core.pricing import compute_llm_cost_usd
 
 logger = logging.getLogger(__name__)
 _PROMPT_PATH = Path(__file__).with_name("prompts") / "system_prompt.txt"
-_MODEL = "claude-sonnet-4-5"
+_DEFAULT_MODEL = "claude-sonnet-4-5"
 
 
 @dataclass(slots=True)
@@ -38,6 +38,14 @@ def _build_user_content(query: str, query_type: str, context_str: str, extra_ins
     )
 
 
+def _choose_model(*, query_type: str, context_str: str) -> str:
+    if query_type in {"comparison", "bull_bear"}:
+        return settings.llm_model_strong
+    if len(context_str) >= settings.llm_route_context_chars:
+        return settings.llm_model_strong
+    return settings.llm_model_fast or _DEFAULT_MODEL
+
+
 def generate_answer_stream(
     *,
     query: str,
@@ -52,8 +60,9 @@ def generate_answer_stream(
 
     client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
     user_content = _build_user_content(query, query_type, context_str, extra_instruction)
+    model = _choose_model(query_type=query_type, context_str=context_str)
     with client.messages.stream(
-        model=_MODEL,
+        model=model,
         max_tokens=2048,
         system=_system_prompt(),
         messages=[{"role": "user", "content": user_content}],
@@ -79,9 +88,10 @@ def generate_answer(
         )
 
     client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    model = _choose_model(query_type=query_type, context_str=context_str)
     try:
         msg = client.messages.create(
-            model=_MODEL,
+            model=model,
             max_tokens=2048,
             system=_system_prompt(),
             messages=[
@@ -95,7 +105,7 @@ def generate_answer(
         usage = getattr(msg, "usage", None)
         in_tokens = int(getattr(usage, "input_tokens", 0))
         out_tokens = int(getattr(usage, "output_tokens", 0))
-        cost = compute_llm_cost_usd(_MODEL, in_tokens, out_tokens)
+        cost = compute_llm_cost_usd(model, in_tokens, out_tokens)
         return LLMResponse(
             answer_text=text
             or "I don't have sufficient information in the provided documents.",

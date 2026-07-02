@@ -13,8 +13,9 @@ import { MetricsBar } from "@/components/MetricsBar";
 import { PipelineLoader } from "@/components/PipelineLoader";
 import { QueryHistoryPanel } from "@/components/QueryHistoryPanel";
 import { QueryInput } from "@/components/QueryInput";
+import { SavedNotesPanel } from "@/components/SavedNotesPanel";
 import { useToast } from "@/components/ui/Toast";
-import { apiClient, type QueryResponse, type RetrieveFilters } from "@/lib/apiClient";
+import { apiClient, type QueryResponse, type ResearchNote, type RetrieveFilters } from "@/lib/apiClient";
 import { copyAnswerMarkdown } from "@/lib/exportMarkdown";
 import { addHistoryEntry, clearQueryHistory, loadQueryHistory, type HistoryEntry } from "@/lib/queryHistory";
 import { isOnboardingDone, loadFilters, loadRecentQueries, pushRecentQuery, saveFilters } from "@/lib/storage";
@@ -38,6 +39,7 @@ export default function WorkspacePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [recentQueries, setRecentQueries] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [savedNotes, setSavedNotes] = useState<ResearchNote[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [instantAnswer, setInstantAnswer] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
@@ -48,6 +50,12 @@ export default function WorkspacePage() {
     setRecentQueries(loadRecentQueries());
     setHistory(loadQueryHistory());
     setShowOnboarding(!isOnboardingDone());
+    void apiClient
+      .listNotes()
+      .then(setSavedNotes)
+      .catch(() => {
+        /* optional for first load */
+      });
   }, []);
 
   useEffect(() => {
@@ -209,6 +217,61 @@ export default function WorkspacePage() {
     setSidebarOpen(false);
   }
 
+  function openSavedNote(note: ResearchNote) {
+    setInstantAnswer(true);
+    setQueryComplete(true);
+    setQuestion(note.question);
+    let citations = [] as QueryResponse["citations"];
+    try {
+      const parsed = JSON.parse(note.citations_json) as QueryResponse["citations"];
+      if (Array.isArray(parsed)) citations = parsed;
+    } catch {
+      citations = [];
+    }
+    setResponse({
+      answer: note.answer,
+      citations,
+      metadata: {
+        query_type: "saved_note",
+        chunks_retrieved: citations.length,
+        chunks_used: citations.length,
+        retrieval_ms: 0,
+        llm_ms: 0,
+        input_tokens: 0,
+        output_tokens: 0,
+        llm_cost_usd: 0,
+        total_ms: 0,
+        cache_hit: false,
+      },
+    });
+  }
+
+  async function deleteSavedNote(id: string) {
+    try {
+      await apiClient.deleteNote(id);
+      setSavedNotes((prev) => prev.filter((n) => n.id !== id));
+      toast("Saved note deleted", "info");
+    } catch {
+      toast("Could not delete note", "error");
+    }
+  }
+
+  async function saveCurrentNote() {
+    if (!response?.answer || !question.trim()) return;
+    try {
+      const note = await apiClient.createNote({
+        title: question.trim().slice(0, 90),
+        question: question.trim(),
+        answer: response.answer,
+        citations_json: JSON.stringify(response.citations),
+      });
+      setSavedNotes((prev) => [note, ...prev.filter((n) => n.id !== note.id)]);
+      toast("Saved to notes", "success");
+    } catch {
+      toast("Could not save note", "error");
+    }
+  }
+
   async function handleExport() {
     if (!response?.answer) return;
     try {
@@ -279,6 +342,7 @@ export default function WorkspacePage() {
                   toast("History cleared", "info");
                 }}
               />
+              <SavedNotesPanel notes={savedNotes} onOpen={openSavedNote} onDelete={(id) => void deleteSavedNote(id)} />
             </div>
           </div>
         </aside>
@@ -344,6 +408,17 @@ export default function WorkspacePage() {
                     onCitationClick={setSelectedCitation}
                     onExport={() => void handleExport()}
                   />
+                  {queryComplete && response?.answer ? (
+                    <div className="mt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => void saveCurrentNote()}
+                        className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+                      >
+                        Save note
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               )}
 
@@ -353,6 +428,7 @@ export default function WorkspacePage() {
                     citations={response.citations}
                     selectedIndex={selectedCitation}
                     onSelect={setSelectedCitation}
+                    queryText={question}
                   />
                 </div>
               ) : null}

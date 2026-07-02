@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
     anthropic_api_key: str | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     cohere_api_key: str | None = Field(default=None, validation_alias="COHERE_API_KEY")
+    llm_model_fast: str = Field(default="claude-3-5-haiku-20241022", validation_alias="LLM_MODEL_FAST")
+    llm_model_strong: str = Field(default="claude-sonnet-4-5", validation_alias="LLM_MODEL_STRONG")
+    llm_route_context_chars: int = Field(default=7000, validation_alias="LLM_ROUTE_CONTEXT_CHARS")
 
     query_cache_ttl_seconds: int = Field(default=3600, validation_alias="QUERY_CACHE_TTL_SECONDS")
     semantic_cache_threshold: float = Field(default=0.92, validation_alias="SEMANTIC_CACHE_THRESHOLD")

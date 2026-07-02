@@ -9,6 +9,7 @@ from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.ingest import router as ingest_router
 from app.api.meta import router as meta_router
+from app.api.notes import router as notes_router
 from app.api.query import router as query_router
 from app.api.query_stream import router as query_stream_router
 from app.api.retrieve import router as retrieve_router
@@ -52,6 +53,7 @@ def create_app() -> FastAPI:
     application.include_router(query_router)
     application.include_router(query_stream_router)
     application.include_router(meta_router)
+    application.include_router(notes_router)
     return application
 
 

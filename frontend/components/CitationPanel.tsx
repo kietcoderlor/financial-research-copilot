@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { QueryCitation } from "@/lib/apiClient";
 
@@ -15,11 +15,41 @@ type CitationPanelProps = {
   citations: QueryCitation[];
   selectedIndex?: number | null;
   onSelect?: (index: number) => void;
+  queryText?: string;
 };
 
-export function CitationPanel({ citations, selectedIndex = null, onSelect }: CitationPanelProps) {
+function queryTerms(queryText: string): string[] {
+  return Array.from(
+    new Set(
+      queryText
+        .toLowerCase()
+        .split(/\s+/)
+        .map((x) => x.replace(/[^a-z0-9\-]/g, ""))
+        .filter((x) => x.length >= 4),
+    ),
+  );
+}
+
+function highlightExcerpt(excerpt: string, terms: string[]): ReactNode {
+  if (!terms.length) return excerpt;
+  const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const re = new RegExp(`(${escaped.join("|")})`, "ig");
+  const isTerm = new RegExp(`^(${escaped.join("|")})$`, "i");
+  return excerpt.split(re).map((part, idx) =>
+    isTerm.test(part) ? (
+      <mark key={`${part}-${idx}`} className="rounded bg-emerald-500/20 px-0.5 text-emerald-200">
+        {part}
+      </mark>
+    ) : (
+      <span key={`${part}-${idx}`}>{part}</span>
+    ),
+  );
+}
+
+export function CitationPanel({ citations, selectedIndex = null, onSelect, queryText = "" }: CitationPanelProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const cardRefs = useRef<Record<number, HTMLElement | null>>({});
+  const terms = queryTerms(queryText);
 
   useEffect(() => {
     if (selectedIndex == null) return;
@@ -37,6 +67,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect }: Cit
   if (citations.length === 0) {
     return null;
   }
+  const activeCitation = citations.find((c) => c.index === selectedIndex) ?? citations[0];
 
   return (
     <section className="glass-panel rounded-2xl p-6" data-onboarding="results">
@@ -91,7 +122,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect }: Cit
               </div>
 
               <blockquote className="mt-3 border-l-2 border-emerald-500/50 pl-3 text-sm leading-relaxed text-[var(--text-secondary)]">
-                {isOpen ? excerpt : preview}
+                {isOpen ? highlightExcerpt(excerpt, terms) : highlightExcerpt(preview, terms)}
               </blockquote>
 
               <button
@@ -120,6 +151,31 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect }: Cit
           );
         })}
       </div>
+
+      {activeCitation ? (
+        <div className="mt-5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Source viewer</p>
+          <div className="mt-2 flex items-center gap-2 text-xs text-[var(--text-muted)]">
+            <span className="font-semibold text-[var(--text-primary)]">{activeCitation.company}</span>
+            <span>{activeCitation.doc_type}</span>
+            {activeCitation.year != null ? <span>{activeCitation.year}</span> : null}
+            {activeCitation.section ? <span>· {activeCitation.section}</span> : null}
+          </div>
+          <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-[var(--text-secondary)]">
+            {highlightExcerpt(activeCitation.excerpt.trim(), terms)}
+          </p>
+          {activeCitation.source_url ? (
+            <a
+              href={activeCitation.source_url}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-block text-xs text-cyan-400 hover:text-cyan-300"
+            >
+              Open original filing →
+            </a>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

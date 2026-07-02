@@ -8,12 +8,14 @@ on:
       - "alembic/**"
       - "requirements*.txt"
       - "pytest.ini"
+      - "eval/**"
   push:
     branches: [main]
     paths:
       - "app/**"
       - "tests/**"
       - "alembic/**"
+      - "eval/**"
 
 jobs:
   test:
@@ -55,3 +57,5 @@ jobs:
           rm -f alembic/versions/ci_drift_check.py
       - name: Pytest
         run: pytest -q
+      - name: Eval smoke
+        run: python eval/eval_smoke.py
