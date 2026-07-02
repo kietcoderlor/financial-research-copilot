@@ -15,6 +15,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
   const [tickers, setTickers] = useState<string[] | null>(null);
   const [open, setOpen] = useState(true);
   const [companySearch, setCompanySearch] = useState("");
+  const [companyPickerOpen, setCompanyPickerOpen] = useState(false);
 
   const filteredTickers = useMemo(() => {
     if (!tickers) return [];
@@ -168,73 +169,110 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
               <p className="text-xs text-[var(--text-muted)]">No tickers ingested yet.</p>
             ) : (
               <div className="space-y-2">
-                <div className="relative">
-                  <svg
-                    className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--text-muted)]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    aria-hidden
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
-                    />
-                  </svg>
-                  <input
-                    type="search"
-                    value={companySearch}
-                    onChange={(e) => setCompanySearch(e.target.value)}
-                    placeholder="Search ticker…"
-                    className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-8 pr-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/40 focus:outline-none"
-                  />
-                  {companySearch ? (
-                    <button
-                      type="button"
-                      onClick={() => setCompanySearch("")}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-                      aria-label="Clear search"
-                    >
-                      ✕
-                    </button>
-                  ) : null}
-                </div>
+                {value.companies.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {value.companies.map((ticker) => (
+                      <button
+                        key={ticker}
+                        type="button"
+                        onClick={() => onChange({ ...value, companies: value.companies.filter((c) => c !== ticker) })}
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-300"
+                      >
+                        {ticker}
+                        <span className="text-[10px] opacity-70">×</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
 
-                <div className="sidebar-scroll max-h-40 overflow-y-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/50 p-2">
-                  {filteredTickers.length === 0 ? (
-                    <p className="px-1 py-2 text-xs text-[var(--text-muted)]">No match for "{companySearch}"</p>
-                  ) : (
-                    <div className="flex flex-wrap gap-2">
-                      {filteredTickers.map((ticker) => {
-                        const checked = value.companies.includes(ticker);
-                        return (
-                          <button
-                            key={ticker}
-                            type="button"
-                            onClick={() => {
-                              const companies = checked
-                                ? value.companies.filter((c) => c !== ticker)
-                                : [...value.companies, ticker];
-                              onChange({ ...value, companies });
-                            }}
-                            className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
-                              checked
-                                ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
-                                : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
-                            }`}
-                          >
-                            {ticker}
-                          </button>
-                        );
-                      })}
+                {!companyPickerOpen ? (
+                  <button
+                    type="button"
+                    onClick={() => setCompanyPickerOpen(true)}
+                    className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-left text-xs text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
+                  >
+                    <svg className="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
+                    </svg>
+                    Search ticker…
+                  </button>
+                ) : (
+                  <div className="space-y-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/50 p-2">
+                    <div className="relative">
+                      <svg
+                        className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--text-muted)]"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                        aria-hidden
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"
+                        />
+                      </svg>
+                      <input
+                        type="search"
+                        autoFocus
+                        value={companySearch}
+                        onChange={(e) => setCompanySearch(e.target.value)}
+                        placeholder="Type ticker symbol…"
+                        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-8 pr-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/40 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCompanyPickerOpen(false);
+                          setCompanySearch("");
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                        aria-label="Close ticker search"
+                      >
+                        ✕
+                      </button>
                     </div>
-                  )}
-                </div>
-                <p className="text-[10px] text-[var(--text-muted)]">
-                  {filteredTickers.length} of {tickers.length} tickers
-                </p>
+
+                    <div className="sidebar-scroll max-h-40 overflow-y-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/80 p-2">
+                      {companySearch.trim() === "" ? (
+                        <p className="px-1 py-2 text-xs text-[var(--text-muted)]">Type to filter tickers…</p>
+                      ) : filteredTickers.length === 0 ? (
+                        <p className="px-1 py-2 text-xs text-[var(--text-muted)]">No match for "{companySearch}"</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {filteredTickers.map((ticker) => {
+                            const checked = value.companies.includes(ticker);
+                            return (
+                              <button
+                                key={ticker}
+                                type="button"
+                                onClick={() => {
+                                  const companies = checked
+                                    ? value.companies.filter((c) => c !== ticker)
+                                    : [...value.companies, ticker];
+                                  onChange({ ...value, companies });
+                                }}
+                                className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
+                                  checked
+                                    ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
+                                    : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
+                                }`}
+                              >
+                                {ticker}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    {companySearch.trim() !== "" ? (
+                      <p className="text-[10px] text-[var(--text-muted)]">
+                        {filteredTickers.length} of {tickers.length} tickers
+                      </p>
+                    ) : null}
+                  </div>
+                )}
               </div>
             )}
           </fieldset>

@@ -10,7 +10,6 @@ import { FilterPanel } from "@/components/FilterPanel";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { PageFooter } from "@/components/layout/PageFooter";
 import { MetricsBar } from "@/components/MetricsBar";
-import { Reveal } from "@/components/motion/Reveal";
 import { PipelineLoader } from "@/components/PipelineLoader";
 import { QueryHistoryPanel } from "@/components/QueryHistoryPanel";
 import { QueryInput } from "@/components/QueryInput";
@@ -40,6 +39,8 @@ export default function WorkspacePage() {
   const [recentQueries, setRecentQueries] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [instantAnswer, setInstantAnswer] = useState(false);
+  const [queryComplete, setQueryComplete] = useState(false);
 
   useEffect(() => {
     const saved = loadFilters();
@@ -55,11 +56,13 @@ export default function WorkspacePage() {
 
   const showEmpty = !loading && !response && !error;
   const hasAnswer = Boolean(response?.answer);
-  const isGenerating = phase === "generating" || streaming;
 
   const noResults = useMemo(
-    () => Boolean(response && response.answer && response.citations.length === 0),
-    [response],
+    () =>
+      Boolean(
+        queryComplete && response && response.answer && response.citations.length === 0,
+      ),
+    [queryComplete, response],
   );
 
   const runQuery = useCallback(
@@ -74,6 +77,8 @@ export default function WorkspacePage() {
       setSelectedCitation(null);
       setSidebarOpen(false);
       setResponse(null);
+      setInstantAnswer(false);
+      setQueryComplete(false);
 
       let answerText = "";
 
@@ -124,6 +129,7 @@ export default function WorkspacePage() {
                 },
               };
               setResponse(finalResponse);
+              setQueryComplete(true);
               setRecentQueries(pushRecentQuery(text));
               setHistory(
                 addHistoryEntry({
@@ -151,6 +157,7 @@ export default function WorkspacePage() {
           setError(message);
         }
         setResponse(null);
+        setQueryComplete(false);
         toast(message, "error");
       } finally {
         setLoading(false);
@@ -177,6 +184,8 @@ export default function WorkspacePage() {
   }, []);
 
   function restoreHistory(entry: HistoryEntry) {
+    setInstantAnswer(true);
+    setQueryComplete(true);
     setQuestion(entry.question);
     setFilters(entry.filters);
     setResponse({
@@ -210,7 +219,7 @@ export default function WorkspacePage() {
   }
 
   return (
-    <div className="app-shell flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="app-shell workspace-shell flex min-h-0 flex-col overflow-hidden">
       <OnboardingTour active={showOnboarding} onComplete={() => setShowOnboarding(false)} />
 
       <div className="flex min-h-0 flex-1">
@@ -273,17 +282,11 @@ export default function WorkspacePage() {
             <span className="text-xs text-[var(--text-muted)]">⌘K focus query</span>
           </div>
 
-          <main className="sidebar-scroll flex-1 overflow-y-auto px-6 py-6">
+          <main className="workspace-main px-6 py-6">
             <div className="mx-auto max-w-4xl space-y-5">
-              <Reveal delay={2}>
-                <ErrorBanner error={error} onRetry={() => runQuery()} />
-              </Reveal>
+              <ErrorBanner error={error} onRetry={() => runQuery()} />
 
-              {showEmpty ? (
-                <Reveal delay={3}>
-                  <EmptyState onSelect={(q) => runQuery(q)} />
-                </Reveal>
-              ) : null}
+              {showEmpty ? <EmptyState onSelect={(q) => runQuery(q)} /> : null}
 
               {loading && phase === "retrieving" && !streaming ? (
                 <div className="ui-step-enter">
@@ -291,7 +294,7 @@ export default function WorkspacePage() {
                 </div>
               ) : null}
 
-              {response?.metadata && hasAnswer ? (
+              {queryComplete && response?.metadata && hasAnswer ? (
                 <div className="ui-step-enter">
                   <MetricsBar metadata={response.metadata} />
                 </div>
@@ -308,7 +311,7 @@ export default function WorkspacePage() {
                   <AnswerDisplay
                     answer={response?.answer ?? null}
                     loading={loading && !streaming}
-                    streaming={isGenerating}
+                    instant={instantAnswer}
                     onCitationClick={setSelectedCitation}
                     onExport={() => void handleExport()}
                   />

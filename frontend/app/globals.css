@@ -128,6 +128,20 @@ html {
   margin-left: var(--sidebar-w);
 }
 
+.workspace-shell {
+  height: calc(100dvh - var(--header-h));
+  min-height: 0;
+}
+
+.workspace-main {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 767px) {
   .app-main-with-sidebar {
     margin-left: 0;
@@ -200,6 +214,39 @@ html {
 
 .toast-info {
   border-color: var(--border-strong);
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  background: #34d399;
+  flex-shrink: 0;
+  align-self: flex-end;
+  animation: typewriter-blink 0.75s step-end infinite;
+}
+
+.answer-markdown-typing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0;
+}
+
+.answer-markdown-typing .answer-markdown-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@keyframes typewriter-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .onboarding-overlay {
