@@ -1,11 +1,14 @@
 "use client";
 
+import { forwardRef } from "react";
+
 type QueryInputProps = {
   value: string;
   loading: boolean;
   onChange: (value: string) => void;
   onSubmit: () => void;
   compact?: boolean;
+  recentQueries?: string[];
 };
 
 const EXAMPLES = [
@@ -14,18 +17,26 @@ const EXAMPLES = [
   "Goldman Sachs risk factors",
 ];
 
-export function QueryInput({ value, loading, onChange, onSubmit, compact = false }: QueryInputProps) {
+export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(function QueryInput(
+  { value, loading, onChange, onSubmit, compact = false, recentQueries = [] },
+  ref,
+) {
   return (
-    <section className={compact ? "" : "glass-panel rounded-2xl p-5"}>
+    <section className={compact ? "" : "glass-panel rounded-2xl p-5"} data-onboarding="query">
       {!compact ? (
         <label className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
           Research question
         </label>
       ) : null}
       <textarea
+        ref={ref}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={(event) => {
+          if (event.key === "Enter" && !event.shiftKey && !loading) {
+            event.preventDefault();
+            onSubmit();
+          }
           if (event.ctrlKey && event.key === "Enter" && !loading) {
             event.preventDefault();
             onSubmit();
@@ -36,7 +47,7 @@ export function QueryInput({ value, loading, onChange, onSubmit, compact = false
         className="w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
       />
       <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
-        <span>Ctrl + Enter</span>
+        <span>Enter · ⌘K focus</span>
         <span className="font-mono">{value.length}</span>
       </div>
 
@@ -61,6 +72,21 @@ export function QueryInput({ value, loading, onChange, onSubmit, compact = false
         )}
       </button>
 
+      {!compact && recentQueries.length > 0 ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {recentQueries.slice(0, 3).map((example) => (
+            <button
+              type="button"
+              key={example}
+              onClick={() => onChange(example)}
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
+            >
+              {example}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       {!compact ? (
         <div className="mt-4 flex flex-wrap gap-2">
           {EXAMPLES.map((example) => (
@@ -77,4 +103,4 @@ export function QueryInput({ value, loading, onChange, onSubmit, compact = false
       ) : null}
     </section>
   );
-}
+});

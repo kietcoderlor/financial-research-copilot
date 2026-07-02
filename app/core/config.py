@@ -75,6 +75,7 @@ class Settings(BaseSettings):
     auth_otp_ttl_seconds: int = Field(default=600, validation_alias="AUTH_OTP_TTL_SECONDS")
     auth_otp_rate_limit_per_hour: int = Field(default=5, validation_alias="AUTH_OTP_RATE_LIMIT_PER_HOUR")
     auth_otp_dev_expose: bool = Field(default=True, validation_alias="AUTH_OTP_DEV_EXPOSE")
+    query_auth_required: bool = Field(default=True, validation_alias="QUERY_AUTH_REQUIRED")
 
     @property
     def resolved_sqs_endpoint_url(self) -> str | None:

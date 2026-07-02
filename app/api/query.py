@@ -13,7 +13,8 @@ from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.db.models import Document, DocumentChunk
+from app.api.auth import require_query_auth
+from app.db.models import User
 from app.db.session import get_session
 from app.generation.citation_parser import (
     extract_citation_indices,
@@ -130,6 +131,7 @@ def _is_refusal_answer(text: str) -> bool:
 async def post_query(
     body: QueryRequest,
     session: AsyncSession = Depends(get_session),
+    _user: User | None = Depends(require_query_auth),
 ) -> QueryResponse:
     t_total = time.perf_counter()
     question = body.question.strip()

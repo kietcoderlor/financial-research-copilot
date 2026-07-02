@@ -39,6 +39,17 @@ def _auth_response(user: User) -> AuthResponse:
     return AuthResponse(access_token=token, user=_user_public(user))
 
 
+async def require_query_auth(
+    authorization: str | None = Header(default=None),
+    session: AsyncSession = Depends(get_session),
+) -> User | None:
+    from app.core.config import settings
+
+    if not settings.query_auth_required:
+        return None
+    return await get_current_user(authorization, session)
+
+
 async def get_current_user(
     authorization: str | None = Header(default=None),
     session: AsyncSession = Depends(get_session),

@@ -128,6 +128,101 @@ html {
   margin-left: var(--sidebar-w);
 }
 
+@media (max-width: 767px) {
+  .app-main-with-sidebar {
+    margin-left: 0;
+  }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  top: var(--header-h);
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 35;
+  border: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.ui-skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--bg-surface) 90%, transparent) 0%,
+    color-mix(in srgb, var(--bg-elevated) 95%, white 5%) 50%,
+    color-mix(in srgb, var(--bg-surface) 90%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.toast-stack {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-item {
+  pointer-events: auto;
+  min-width: 220px;
+  max-width: 360px;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.45);
+}
+
+.toast-success {
+  border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.toast-error {
+  border-color: rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+}
+
+.toast-info {
+  border-color: var(--border-strong);
+}
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.onboarding-card {
+  width: min(100%, 28rem);
+  border-radius: 1rem;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  padding: 1.25rem;
+  box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.55);
+}
+
+
 .hero-panel {
   position: relative;
   border-radius: 1.5rem;

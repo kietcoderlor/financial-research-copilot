@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Reveal, Stagger } from "@/components/motion/Reveal";
 import { MetricCard } from "@/components/ui/MetricCard";
+import { MetricCardSkeleton } from "@/components/ui/Skeleton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { Button } from "@/components/ui/Button";
 
@@ -71,7 +72,11 @@ export default function DashboardPage() {
 
         {loading ? (
           <Reveal delay={3}>
-            <div className="glass-panel rounded-2xl p-6 text-sm text-[var(--text-muted)]">Loading dashboard…</div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <MetricCardSkeleton key={i} />
+              ))}
+            </div>
           </Reveal>
         ) : null}
 

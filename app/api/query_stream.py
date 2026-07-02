@@ -21,7 +21,9 @@ from app.api.query import (
     _ms,
     _validate_companies,
 )
+from app.api.auth import require_query_auth
 from app.core.config import settings
+from app.db.models import User
 from app.db.session import get_session
 from app.generation.citation_parser import extract_citation_indices, resolve_citations
 from app.generation.classifier import query_type_instructions
@@ -43,6 +45,7 @@ def _sse(event: str, data: dict) -> str:
 async def post_query_stream(
     body: QueryRequest,
     session: AsyncSession = Depends(get_session),
+    _user: User | None = Depends(require_query_auth),
 ) -> StreamingResponse:
     question = body.question.strip()
     if not question:

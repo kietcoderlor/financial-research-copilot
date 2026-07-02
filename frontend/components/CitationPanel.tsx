@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { QueryCitation } from "@/lib/apiClient";
 
@@ -13,17 +13,33 @@ const DOC_COLORS: Record<string, string> = {
 
 type CitationPanelProps = {
   citations: QueryCitation[];
+  selectedIndex?: number | null;
+  onSelect?: (index: number) => void;
 };
 
-export function CitationPanel({ citations }: CitationPanelProps) {
+export function CitationPanel({ citations, selectedIndex = null, onSelect }: CitationPanelProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const cardRefs = useRef<Record<number, HTMLElement | null>>({});
+
+  useEffect(() => {
+    if (selectedIndex == null) return;
+    const node = cardRefs.current[selectedIndex];
+    if (node) {
+      node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      setExpanded((prev) => {
+        const citation = citations.find((c) => c.index === selectedIndex);
+        if (!citation) return prev;
+        return { ...prev, [citation.chunk_id]: true };
+      });
+    }
+  }, [selectedIndex, citations]);
 
   if (citations.length === 0) {
     return null;
   }
 
   return (
-    <section className="glass-panel rounded-2xl p-6">
+    <section className="glass-panel rounded-2xl p-6" data-onboarding="results">
       <div className="mb-5 flex items-end justify-between gap-2 border-b border-[var(--border-subtle)] pb-4">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">Evidence</p>
@@ -41,11 +57,18 @@ export function CitationPanel({ citations }: CitationPanelProps) {
           const docStyle =
             DOC_COLORS[citation.doc_type] ??
             "text-[var(--text-primary)] border-[var(--border-strong)] bg-[var(--bg-elevated)]";
+          const isSelected = selectedIndex === citation.index;
 
           return (
             <article
               key={key}
-              className="group rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)]/60 p-4 transition hover:border-[var(--border-strong)]"
+              ref={(node) => {
+                cardRefs.current[citation.index] = node;
+              }}
+              onClick={() => onSelect?.(citation.index)}
+              className={`group cursor-pointer rounded-xl border bg-[var(--bg-elevated)]/60 p-4 transition hover:border-[var(--border-strong)] ${
+                isSelected ? "border-emerald-500/60 ring-2 ring-emerald-500/20" : "border-[var(--border-subtle)]"
+              }`}
             >
               <div className="flex items-start gap-3">
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-600 text-sm font-bold text-white shadow-lg shadow-emerald-900/30">
@@ -73,11 +96,26 @@ export function CitationPanel({ citations }: CitationPanelProps) {
 
               <button
                 type="button"
-                onClick={() => setExpanded((prev) => ({ ...prev, [key]: !isOpen }))}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setExpanded((prev) => ({ ...prev, [key]: !isOpen }));
+                }}
                 className="mt-3 text-xs font-medium text-emerald-400/90 transition hover:text-emerald-300"
               >
                 {isOpen ? "Collapse" : "Read full excerpt"}
               </button>
+
+              {citation.source_url ? (
+                <a
+                  href={citation.source_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={(event) => event.stopPropagation()}
+                  className="mt-2 block text-xs text-cyan-400/90 hover:text-cyan-300"
+                >
+                  View filing →
+                </a>
+              ) : null}
             </article>
           );
         })}

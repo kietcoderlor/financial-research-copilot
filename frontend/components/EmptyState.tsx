@@ -1,32 +1,54 @@
 "use client";
 
+import { useState } from "react";
+
 import { Stagger } from "@/components/motion/Reveal";
 
-const DEMO_QUERIES = [
+const CATEGORIES = [
   {
-    title: "Single company",
-    query: "Tesla risk factors 2024",
-    desc: "10-K risk factors with citations",
+    id: "single_company",
+    label: "Single company",
+    queries: [
+      { query: "Tesla risk factors 2024", desc: "10-K risk factors with citations" },
+      { query: "Apple services revenue growth drivers", desc: "Revenue mix from recent filings" },
+    ],
   },
   {
-    title: "Comparison",
-    query: "Compare Apple and Microsoft cloud growth",
-    desc: "Multi-hop retrieval across tickers",
+    id: "comparison",
+    label: "Comparison",
+    queries: [
+      { query: "Compare Apple and Microsoft cloud growth", desc: "Multi-hop retrieval across tickers" },
+      { query: "NVIDIA vs AMD data center revenue trends", desc: "Cross-company synthesis" },
+    ],
   },
   {
-    title: "Bull / bear",
-    query: "Bull and bear case for Tesla in 2024 filings",
-    desc: "Balanced synthesis from transcripts",
+    id: "bull_bear",
+    label: "Bull / bear",
+    queries: [
+      { query: "Bull and bear case for Tesla in 2024 filings", desc: "Balanced synthesis from transcripts" },
+      { query: "Bull vs bear thesis for Meta advertising", desc: "Management commentary contrast" },
+    ],
   },
-];
+  {
+    id: "general",
+    label: "General research",
+    queries: [
+      { query: "Goldman Sachs capital requirements and liquidity", desc: "Bank regulatory disclosures" },
+      { query: "What did Amazon say about AWS margins?", desc: "Earnings transcript insights" },
+    ],
+  },
+] as const;
 
 type EmptyStateProps = {
   onSelect: (query: string) => void;
 };
 
 export function EmptyState({ onSelect }: EmptyStateProps) {
+  const [activeCategory, setActiveCategory] = useState<(typeof CATEGORIES)[number]["id"]>(CATEGORIES[0].id);
+  const category = CATEGORIES.find((c) => c.id === activeCategory) ?? CATEGORIES[0];
+
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+    <div className="flex flex-col items-center justify-center px-4 py-16 text-center" data-onboarding="results">
       <div className="mb-6 flex size-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 shadow-lg shadow-emerald-900/10">
         <svg className="size-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path
@@ -40,16 +62,34 @@ export function EmptyState({ onSelect }: EmptyStateProps) {
       <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--text-muted)]">
         Grounded answers from SEC filings and earnings transcripts — every claim linked to a source chunk.
       </p>
-      <div className="mt-8 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
+
+      <div className="mt-6 flex flex-wrap justify-center gap-2">
+        {CATEGORIES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setActiveCategory(item.id)}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              activeCategory === item.id
+                ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
+                : "bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 grid w-full max-w-2xl gap-3 sm:grid-cols-2">
         <Stagger start={1}>
-          {DEMO_QUERIES.map((item) => (
+          {category.queries.map((item) => (
             <button
               key={item.query}
               type="button"
               onClick={() => onSelect(item.query)}
               className="surface-card group rounded-xl p-4 text-left"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">{item.title}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">{category.label}</p>
               <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">{item.query}</p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">{item.desc}</p>
             </button>

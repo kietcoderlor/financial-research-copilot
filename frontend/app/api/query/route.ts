@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function backendBaseUrl(): string {
-  const raw = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-  return raw.replace(/\/$/, "");
-}
+import { backendBaseUrl } from "@/lib/backend";
+import { backendAuthHeaders } from "@/lib/proxyAuth";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const headers = await backendAuthHeaders({ "Content-Type": "application/json" });
+  if (headers instanceof NextResponse) return headers;
+
   const payload = await request.text();
   const upstream = await fetch(`${backendBaseUrl()}/query`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: payload,
     cache: "no-store",
   });
