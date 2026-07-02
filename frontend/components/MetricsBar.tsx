@@ -4,6 +4,7 @@ import type { QueryMetadata } from "@/lib/apiClient";
 
 type MetricsBarProps = {
   metadata: QueryMetadata | null;
+  citationCount?: number;
 };
 
 function formatMs(ms: number): string {
@@ -16,8 +17,23 @@ function formatCost(usd: number): string {
   return usd < 0.01 ? `<$0.01` : `$${usd.toFixed(3)}`;
 }
 
-export function MetricsBar({ metadata }: MetricsBarProps) {
+function confidenceFromSignals(metadata: QueryMetadata, citationCount: number): {
+  label: "High" | "Medium" | "Low";
+  tone: string;
+} {
+  const flagCount = metadata.hallucination_flags?.length ?? 0;
+  if (flagCount > 0 || citationCount === 0) {
+    return { label: "Low", tone: "text-rose-300" };
+  }
+  if (citationCount >= 3 && metadata.chunks_used >= 3) {
+    return { label: "High", tone: "text-emerald-300" };
+  }
+  return { label: "Medium", tone: "text-amber-300" };
+}
+
+export function MetricsBar({ metadata, citationCount = 0 }: MetricsBarProps) {
   if (!metadata) return null;
+  const confidence = confidenceFromSignals(metadata, citationCount);
 
   const items = [
     { label: "Retrieval", value: formatMs(metadata.retrieval_ms) },
@@ -30,6 +46,7 @@ export function MetricsBar({ metadata }: MetricsBarProps) {
       label: "Cache",
       value: metadata.semantic_cache_hit ? "semantic" : metadata.cache_hit ? "hit" : "miss",
     },
+    { label: "Confidence", value: confidence.label, tone: confidence.tone },
   ];
 
   return (
@@ -40,7 +57,7 @@ export function MetricsBar({ metadata }: MetricsBarProps) {
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5"
         >
           <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{item.label}</span>
-          <span className="font-mono text-xs font-medium text-emerald-300">{item.value}</span>
+          <span className={`font-mono text-xs font-medium ${item.tone ?? "text-emerald-300"}`}>{item.value}</span>
         </div>
       ))}
       {metadata.hallucination_flags && metadata.hallucination_flags.length > 0 ? (

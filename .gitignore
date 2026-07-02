@@ -27,3 +27,5 @@ override.tf.json
 terraform.rc
 infra/terraform/terraform.tfvars
 infra/terraform/tfplan
+frontend/.next/
+frontend/Untitled

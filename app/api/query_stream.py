@@ -56,13 +56,16 @@ async def post_query_stream(
 
     async def event_gen() -> AsyncIterator[str]:
         t_total = time.perf_counter()
+        t_retr = time.perf_counter()
         query_type = route_query(question)
         if query_type == "adversarial":
             yield _sse("token", {"text": _INSUFFICIENT})
             yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type})
+            logger.info("query_stream event=adversarial total_ms=%s", _ms(t_total))
             return
 
         retrieval = await asyncio.to_thread(retrieve, question, filters, top_k=20, top_n=5)
+        retrieval_ms = _ms(t_retr)
         ctx, kept_chunks = build_context(retrieval.chunks)
         for i, ch in enumerate(kept_chunks[:5], start=1):
             yield _sse(
@@ -80,9 +83,17 @@ async def post_query_stream(
             text = _INSUFFICIENT if not kept_chunks else f"Retrieved {len(kept_chunks)} chunks."
             yield _sse("token", {"text": text})
             yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type})
+            logger.info(
+                "query_stream event=short_circuit query_type=%s chunks_used=%s retrieval_ms=%s total_ms=%s",
+                query_type,
+                len(kept_chunks),
+                retrieval_ms,
+                _ms(t_total),
+            )
             return
 
         extra = query_type_instructions(query_type)
+        t_gen = time.perf_counter()
         full_text = ""
         for token in generate_answer_stream(
             query=question,
@@ -109,6 +120,18 @@ async def post_query_stream(
             }
             for i, c in resolved
         ]
-        yield _sse("done", {"total_ms": _ms(t_total), "query_type": query_type, "citations": citations})
+        total_ms = _ms(t_total)
+        generation_ms = _ms(t_gen)
+        yield _sse("done", {"total_ms": total_ms, "query_type": query_type, "citations": citations})
+        logger.info(
+            "query_stream event=complete query_type=%s chunks_used=%s citations=%s retrieval_ms=%s generation_ms=%s total_ms=%s chars=%s",
+            query_type,
+            len(kept_chunks),
+            len(citations),
+            retrieval_ms,
+            generation_ms,
+            total_ms,
+            len(full_text),
+        )
 
     return StreamingResponse(event_gen(), media_type="text/event-stream")
