@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -16,11 +17,16 @@ type SiteHeaderProps = {
   showNav?: boolean;
 };
 
-function CopilotLiveBadge({ visible = true }: { visible?: boolean }) {
+type HealthState = "checking" | "ok" | "degraded";
+
+function CopilotLiveBadge({ visible = true, health = "checking" }: { visible?: boolean; health?: HealthState }) {
+  const label = health === "degraded" ? "Degraded" : health === "ok" ? "Live" : "Checking";
+  const toneClass = health === "degraded" ? "status-live-degraded" : health === "ok" ? "status-live-ok" : "status-live-checking";
+
   return (
-    <span className={`status-live hidden sm:inline-flex ${visible ? "" : "invisible"}`} aria-hidden={!visible}>
+    <span className={`status-live ${toneClass} hidden sm:inline-flex ${visible ? "" : "invisible"}`} aria-hidden={!visible}>
       <span className="status-live-dot" />
-      Live
+      {label}
     </span>
   );
 }
@@ -33,7 +39,36 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const onCopilot = pathname === "/app" || pathname.startsWith("/app/");
-  const headerActions = actions ?? <CopilotLiveBadge visible={onCopilot} />;
+  const [healthState, setHealthState] = useState<HealthState>("checking");
+
+  useEffect(() => {
+    let alive = true;
+
+    async function poll() {
+      try {
+        const res = await fetch("/api/health", { cache: "no-store" });
+        const data = (await res.json()) as { degraded?: boolean; status?: string };
+        if (!alive) return;
+        setHealthState(data.degraded || data.status === "degraded" ? "degraded" : "ok");
+      } catch {
+        if (!alive) return;
+        setHealthState("degraded");
+      }
+    }
+
+    void poll();
+    const id = window.setInterval(() => {
+      void poll();
+    }, 30000);
+
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, []);
+
+  const defaultActions = useMemo(() => <CopilotLiveBadge visible={onCopilot} health={healthState} />, [healthState, onCopilot]);
+  const headerActions = actions ?? defaultActions;
 
   return (
     <>

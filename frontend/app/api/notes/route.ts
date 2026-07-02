@@ -3,11 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { backendBaseUrl } from "@/lib/backend";
 import { backendAuthHeaders } from "@/lib/proxyAuth";
 
-export async function GET(): Promise<Response> {
+export async function GET(request: NextRequest): Promise<Response> {
   const headers = await backendAuthHeaders();
   if (headers instanceof NextResponse) return headers;
+  const qs = request.nextUrl.searchParams.toString();
+  const suffix = qs ? `?${qs}` : "";
 
-  const upstream = await fetch(`${backendBaseUrl()}/notes`, {
+  const upstream = await fetch(`${backendBaseUrl()}/notes${suffix}`, {
     method: "GET",
     headers,
     cache: "no-store",

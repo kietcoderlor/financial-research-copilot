@@ -404,6 +404,18 @@ html {
   color: var(--text-muted);
 }
 
+.status-live-ok {
+  color: var(--text-muted);
+}
+
+.status-live-degraded {
+  color: #fbbf24;
+}
+
+.status-live-checking {
+  color: #93c5fd;
+}
+
 .status-live-dot {
   position: relative;
   display: inline-flex;
@@ -419,6 +431,22 @@ html {
   border-radius: 999px;
   background: #34d399;
   animation: pulse-glow 1.4s ease-in-out infinite;
+}
+
+.status-live-degraded .status-live-dot::before {
+  background: #f59e0b;
+}
+
+.status-live-degraded .status-live-dot::after {
+  background: #f59e0b;
+}
+
+.status-live-checking .status-live-dot::before {
+  background: #60a5fa;
+}
+
+.status-live-checking .status-live-dot::after {
+  background: #60a5fa;
 }
 
 .status-live-dot::after {

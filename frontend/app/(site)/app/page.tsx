@@ -40,6 +40,7 @@ export default function WorkspacePage() {
   const [recentQueries, setRecentQueries] = useState<string[]>([]);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [savedNotes, setSavedNotes] = useState<ResearchNote[]>([]);
+  const [notesOffset, setNotesOffset] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [instantAnswer, setInstantAnswer] = useState(false);
   const [queryComplete, setQueryComplete] = useState(false);
@@ -51,12 +52,25 @@ export default function WorkspacePage() {
     setHistory(loadQueryHistory());
     setShowOnboarding(!isOnboardingDone());
     void apiClient
-      .listNotes()
+      .listNotes(20, 0)
       .then(setSavedNotes)
       .catch(() => {
         /* optional for first load */
       });
   }, []);
+  async function loadMoreNotes() {
+    const nextOffset = notesOffset + 20;
+    try {
+      const more = await apiClient.listNotes(20, nextOffset);
+      if (more.length > 0) {
+        setSavedNotes((prev) => [...prev, ...more]);
+        setNotesOffset(nextOffset);
+      }
+    } catch {
+      toast("Could not load more notes", "error");
+    }
+  }
+
 
   useEffect(() => {
     saveFilters(filters);
@@ -342,7 +356,12 @@ export default function WorkspacePage() {
                   toast("History cleared", "info");
                 }}
               />
-              <SavedNotesPanel notes={savedNotes} onOpen={openSavedNote} onDelete={(id) => void deleteSavedNote(id)} />
+              <SavedNotesPanel
+                notes={savedNotes}
+                onOpen={openSavedNote}
+                onDelete={(id) => void deleteSavedNote(id)}
+                onLoadMore={() => void loadMoreNotes()}
+              />
             </div>
           </div>
         </aside>

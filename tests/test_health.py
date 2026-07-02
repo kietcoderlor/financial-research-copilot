@@ -10,7 +10,11 @@ async def test_health_ok() -> None:
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "version": "0.1.0"}
+    payload = response.json()
+    assert payload["version"] == "0.1.0"
+    assert payload["status"] in {"ok", "degraded"}
+    assert isinstance(payload.get("degraded"), bool)
+    assert isinstance(payload.get("dependencies"), dict)
 
 
 @pytest.mark.asyncio

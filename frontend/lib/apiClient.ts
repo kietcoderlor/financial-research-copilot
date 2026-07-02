@@ -87,6 +87,13 @@ export type ResearchNote = {
   updated_at: string;
 };
 
+export type HealthResponse = {
+  status: string;
+  version: string;
+  degraded: boolean;
+  dependencies: Record<string, string>;
+};
+
 function errorMessageFromBody(status: number, text: string): string {
   if (!text.trim()) {
     return `Request failed with status ${status}`;
@@ -199,8 +206,9 @@ export const apiClient = {
     return postJson<QueryResponse>("/api/query", payload);
   },
   queryStream,
-  listNotes(): Promise<ResearchNote[]> {
-    return getJson<ResearchNote[]>("/api/notes");
+  listNotes(limit = 20, offset = 0): Promise<ResearchNote[]> {
+    const q = new URLSearchParams({ limit: String(limit), offset: String(offset) });
+    return getJson<ResearchNote[]>(`/api/notes?${q.toString()}`);
   },
   createNote(payload: { title: string; question: string; answer: string; citations_json: string }): Promise<ResearchNote> {
     return postJson<ResearchNote>("/api/notes", payload);
@@ -217,5 +225,8 @@ export const apiClient = {
   },
   retrieve(query: string, filters: RetrieveFilters): Promise<RetrieveResponse> {
     return postJson<RetrieveResponse>("/api/retrieve", { query, filters });
+  },
+  health(): Promise<HealthResponse> {
+    return getJson<HealthResponse>("/api/health");
   },
 };
