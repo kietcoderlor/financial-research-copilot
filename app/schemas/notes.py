@@ -8,9 +8,9 @@ from pydantic import BaseModel, Field
 
 class ResearchNoteCreate(BaseModel):
     title: str = Field(min_length=3, max_length=256)
-    question: str = Field(min_length=3)
-    answer: str = Field(min_length=3)
-    citations_json: str = Field(default="[]")
+    question: str = Field(min_length=3, max_length=2000)
+    answer: str = Field(min_length=3, max_length=50_000)
+    citations_json: str = Field(default="[]", max_length=200_000)
 
 
 class ResearchNoteResponse(BaseModel):

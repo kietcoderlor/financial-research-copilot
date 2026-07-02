@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 import jwt
@@ -12,7 +12,7 @@ _ALGORITHM = "HS256"
 
 
 def create_access_token(*, user_id: UUID, email: str) -> str:
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)
     payload = {
         "sub": str(user_id),
         "email": email,

@@ -9,7 +9,7 @@ import time
 from collections.abc import AsyncIterator
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy import distinct, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -32,6 +32,7 @@ from app.generation.llm import generate_answer_stream
 from app.models.requests import QueryRequest, RetrieveFilters
 from app.retrieval.pipeline import retrieve
 from app.retrieval.router import route_query
+from app.core.rate_limiter import rate_limit_or_raise
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/query", tags=["query"])
@@ -46,12 +47,22 @@ async def post_query_stream(
     body: QueryRequest,
     session: AsyncSession = Depends(get_session),
     _user: User | None = Depends(require_query_auth),
+    request: Request,
 ) -> StreamingResponse:
     question = body.question.strip()
     if not question:
         raise HTTPException(status_code=400, detail="question must be non-empty")
 
     filters: RetrieveFilters = body.filters
+    client_ip = (request.client.host if request.client else "unknown").strip()  # type: ignore[union-attr]
+    user_key = str(_user.id) if _user else f"ip:{client_ip}"
+    rate_key = f"rl:query_stream:{user_key}"
+    await asyncio.to_thread(
+        rate_limit_or_raise,
+        key=rate_key,
+        limit_per_window=settings.query_rate_limit_per_minute,
+        window_seconds=60,
+    )
     await _validate_companies(filters, session)
 
     async def event_gen() -> AsyncIterator[str]:

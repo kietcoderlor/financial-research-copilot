@@ -79,6 +79,8 @@ class Settings(BaseSettings):
     auth_otp_rate_limit_per_hour: int = Field(default=5, validation_alias="AUTH_OTP_RATE_LIMIT_PER_HOUR")
     auth_otp_dev_expose: bool = Field(default=True, validation_alias="AUTH_OTP_DEV_EXPOSE")
     query_auth_required: bool = Field(default=True, validation_alias="QUERY_AUTH_REQUIRED")
+    query_rate_limit_per_minute: int = Field(default=30, validation_alias="QUERY_RATE_LIMIT_PER_MINUTE")
+    notes_rate_limit_per_minute: int = Field(default=30, validation_alias="NOTES_RATE_LIMIT_PER_MINUTE")
 
     @property
     def resolved_sqs_endpoint_url(self) -> str | None:
