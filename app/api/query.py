@@ -15,7 +15,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.db.models import Document, DocumentChunk
 from app.db.session import get_session
-from app.generation.citation_parser import extract_citation_indices, resolve_citations
+from app.generation.citation_parser import (
+    extract_citation_indices,
+    resolve_citations,
+    sanitize_answer_citations,
+)
 from app.generation.classifier import query_type_instructions
 from app.generation.context_builder import build_context
 from app.generation.hallucination import detect_hallucination_flags
@@ -34,6 +38,10 @@ from app.retrieval.router import route_query
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/query", tags=["query"])
 _INSUFFICIENT = "I don't have sufficient information in the provided documents."
+_REFUSAL_RE = re.compile(
+    r"don't have sufficient|do not have sufficient|insufficient information|not enough information",
+    re.I,
+)
 _STOPWORDS = {
     "what",
     "which",
@@ -112,6 +120,10 @@ def _fallback_answer_with_citations(chunks: list[DocumentChunk | object]) -> str
         snippet = raw[:220].rstrip()
         lines.append(f"- {snippet} [{i}]")
     return "\n".join(lines)
+
+
+def _is_refusal_answer(text: str) -> bool:
+    return bool(_REFUSAL_RE.search(text or ""))
 
 
 @router.post("", response_model=QueryResponse)
@@ -208,8 +220,13 @@ async def post_query(
         )
         llm_ms = _ms(t_llm)
 
-    indices = extract_citation_indices(llm.answer_text)
-    resolved = resolve_citations(indices, kept_chunks)
+    cleaned_answer = sanitize_answer_citations(llm.answer_text, len(kept_chunks))
+    if _is_refusal_answer(cleaned_answer):
+        cleaned_answer = _INSUFFICIENT
+        resolved: list[tuple[int, object]] = []
+    else:
+        indices = extract_citation_indices(cleaned_answer)
+        resolved = resolve_citations(indices, kept_chunks)
     source_map = await _fetch_source_urls(session, [c.id for _, c in resolved])
 
     citations = [
@@ -226,10 +243,10 @@ async def post_query(
         for i, c in resolved
     ]
 
-    flags = detect_hallucination_flags(llm.answer_text, [c for _, c in resolved])
+    flags = detect_hallucination_flags(cleaned_answer, [c for _, c in resolved])
 
     response = QueryResponse(
-        answer=llm.answer_text,
+        answer=cleaned_answer,
         citations=citations,
         metadata=QueryMetadataResponse(
             query_type=query_type,

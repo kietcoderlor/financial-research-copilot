@@ -2,6 +2,8 @@
 
 :root,
 [data-theme="dark"] {
+  --header-h: 4.5rem;
+  --sidebar-w: 22rem;
   --bg-base: #070b12;
   --bg-elevated: #0f1623;
   --bg-surface: #141d2e;
@@ -46,6 +48,10 @@ body {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 .app-shell {
   background-color: var(--bg-base);
   color: var(--text-primary);
@@ -63,6 +69,23 @@ body {
 .app-sidebar {
   background: var(--sidebar-bg);
   border-color: var(--border-subtle);
+  width: var(--sidebar-w);
+}
+
+.sidebar-scroll {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
 }
 
 .app-header {
@@ -75,6 +98,195 @@ body {
   border: 1px solid var(--border-subtle);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--border-subtle) 50%, transparent), 0 12px 40px -16px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(12px);
+}
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  height: var(--header-h);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px);
+  transform: translateZ(0);
+}
+
+.site-header-inner {
+  width: 100%;
+}
+
+.site-header-spacer {
+  height: var(--header-h);
+  flex-shrink: 0;
+}
+
+.app-main-with-sidebar {
+  margin-left: var(--sidebar-w);
+}
+
+.hero-panel {
+  position: relative;
+  border-radius: 1.5rem;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--bg-elevated) 95%, transparent), color-mix(in srgb, var(--bg-surface) 90%, transparent));
+  border: 1px solid var(--border-subtle);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--border-subtle) 40%, transparent),
+    0 24px 64px -32px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 45%, transparent), transparent 45%, color-mix(in srgb, #22d3ee 35%, transparent));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.surface-card {
+  background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.surface-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 25%, var(--border-subtle));
+  box-shadow: 0 8px 28px -12px color-mix(in srgb, var(--accent) 20%, transparent);
+  transform: translateY(-2px);
+}
+
+.surface-card-accent {
+  background: linear-gradient(145deg, color-mix(in srgb, var(--accent-dim) 60%, var(--bg-elevated)), var(--bg-elevated));
+}
+
+.nav-pill {
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav-pill:hover {
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--bg-elevated) 80%, var(--accent-dim));
+}
+
+.nav-pill-active {
+  color: var(--text-primary);
+  background: var(--accent-dim);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #fff;
+  box-shadow: 0 8px 24px -8px rgba(16, 185, 129, 0.55);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  border: 1px solid var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-strong));
+}
+
+.btn-ghost {
+  color: var(--text-muted);
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+}
+
+.section-label-bar {
+  display: inline-block;
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), #22d3ee);
+}
+
+.eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: var(--accent-dim);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.status-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.status-live-dot {
+  position: relative;
+  display: inline-flex;
+  size: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.status-live-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #34d399;
+  animation: pulse-glow 1.4s ease-in-out infinite;
+}
+
+.status-live-dot::after {
+  content: "";
+  position: relative;
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #10b981;
 }
 
 .chip-ticker {
@@ -153,4 +365,149 @@ body {
 
 .pipeline-dot {
   animation: pulse-glow 1.4s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-reveal,
+.ui-reveal {
+  opacity: 0;
+  animation: fade-in-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.ui-reveal-scroll {
+  opacity: 0;
+  transform: translateY(22px);
+  will-change: opacity, transform;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ui-reveal-scroll.ui-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ui-reveal-contain.ui-reveal-scroll {
+  opacity: 1;
+  transform: none;
+}
+
+.ui-reveal-group-item {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ui-reveal-scroll.ui-reveal-visible .ui-reveal-group-item {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.auth-reveal-delay-1,
+.ui-reveal-delay-1 {
+  transition-delay: 0.06s;
+}
+.auth-reveal-delay-2,
+.ui-reveal-delay-2 {
+  transition-delay: 0.12s;
+}
+.auth-reveal-delay-3,
+.ui-reveal-delay-3 {
+  transition-delay: 0.18s;
+}
+.auth-reveal-delay-4,
+.ui-reveal-delay-4 {
+  transition-delay: 0.24s;
+}
+.auth-reveal-delay-5,
+.ui-reveal-delay-5 {
+  transition-delay: 0.3s;
+}
+.auth-reveal-delay-6,
+.ui-reveal-delay-6 {
+  transition-delay: 0.36s;
+}
+.auth-reveal-delay-7,
+.ui-reveal-delay-7 {
+  transition-delay: 0.42s;
+}
+.ui-reveal-delay-8 {
+  transition-delay: 0.48s;
+}
+.ui-reveal-delay-9 {
+  transition-delay: 0.54s;
+}
+.ui-reveal-delay-10 {
+  transition-delay: 0.6s;
+}
+
+.auth-step-enter,
+.ui-step-enter {
+  animation: fade-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.google-signin-btn {
+  border-color: var(--border-strong);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+.google-signin-btn:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-strong));
+  background: color-mix(in srgb, var(--bg-surface) 90%, var(--accent-dim));
+  box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.15);
+  transform: translateY(-1px);
+}
+
+.google-signin-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.google-signin-hidden {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-reveal,
+  .ui-reveal,
+  .ui-reveal-scroll,
+  .auth-step-enter,
+  .ui-step-enter,
+  .ui-reveal-group-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .surface-card:hover {
+    transform: none;
+  }
+
+  .btn-primary:hover {
+    transform: none;
+  }
+
+  .google-signin-btn:hover:not(:disabled) {
+    transform: none;
+  }
 }

@@ -48,4 +48,4 @@ Q046,Compare Tesla and Exxon energy transition risk exposure.,"{""companies"": [
 Q047,Apple vs Google AI investment and capex themes.,"{""companies"": [], ""years"": [2024], ""doc_types"": []}","AAPL,GOOGL",comparison,Apple on-device intelligence R&D vs Google AI infrastructure capex increase.
 Q048,Compare JPMorgan and Goldman Sachs trading risk profiles.,"{""companies"": [], ""years"": [2024], ""doc_types"": []}","JPM,GS",comparison,JPM emphasizes credit and NII; GS emphasizes market-making volatility.
 Q049,Synthesize margin pressure themes across Tesla Apple and Walmart.,"{""companies"": [], ""years"": [2024], ""doc_types"": []}","TSLA,AAPL,WMT",synthesis,Tesla pricing pressure; Apple stable high-40s; Walmart wage and shrink headwinds.
-Q050,What is Amazon AWS revenue growth in 2024?,"{""companies"": [], ""years"": [2024], ""doc_types"": []}",,adversarial,AMZN not in local corpus; should refuse insufficient information.
+Q050,What is Uber revenue growth in 2024?,"{""companies"": [], ""years"": [2024], ""doc_types"": []}",,adversarial,UBER not in local corpus; should refuse insufficient information.

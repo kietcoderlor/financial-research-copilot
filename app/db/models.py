@@ -15,6 +15,32 @@ from sqlalchemy.schema import Computed
 from app.db.base import Base
 
 
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        server_default=text("gen_random_uuid()"),
+    )
+    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True, index=True)
+    name: Mapped[str | None] = mapped_column(String(256), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    google_sub: Mapped[str | None] = mapped_column(String(128), nullable=True, unique=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class Document(Base):
     __tablename__ = "documents"
 

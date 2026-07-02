@@ -36,3 +36,39 @@ def resolve_citations(indices: list[int], chunks: list[ChunkResult]) -> list[tup
         else:
             logger.warning("hallucinated_citation index=%s max=%s", idx, len(chunks))
     return resolved
+
+
+def sanitize_answer_citations(answer_text: str, max_index: int) -> str:
+    """Drop invalid citation indices from answer text.
+
+    Example:
+      "[1, 7]" with max_index=5 -> "[1]"
+      "[9]" with max_index=5 -> ""
+    """
+    if max_index <= 0 or not answer_text:
+        return answer_text
+
+    def _repl(match: re.Match[str]) -> str:
+        raw = match.group(1)
+        kept: list[str] = []
+        for part in raw.split(","):
+            v = part.strip()
+            if v.isdigit():
+                idx = int(v)
+                if 1 <= idx <= max_index:
+                    kept.append(str(idx))
+        if not kept:
+            return ""
+        # preserve order while removing duplicates
+        uniq: list[str] = []
+        seen: set[str] = set()
+        for k in kept:
+            if k not in seen:
+                seen.add(k)
+                uniq.append(k)
+        return "[" + ", ".join(uniq) + "]"
+
+    cleaned = _CIT_RE.sub(_repl, answer_text)
+    # compact orphaned spaces left by removed citations
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).replace(" .", ".").replace(" ,", ",")
+    return cleaned.strip()

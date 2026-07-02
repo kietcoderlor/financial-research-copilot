@@ -57,6 +57,25 @@ class Settings(BaseSettings):
         validation_alias="SEC_EDGAR_CONTACT_EMAIL",
     )
 
+    jwt_secret: str = Field(
+        default="dev-change-me-in-production-use-long-random-string",
+        validation_alias="JWT_SECRET",
+    )
+    jwt_expire_days: int = Field(default=7, validation_alias="JWT_EXPIRE_DAYS")
+
+    google_client_id: str | None = Field(default=None, validation_alias="GOOGLE_CLIENT_ID")
+
+    smtp_host: str | None = Field(default=None, validation_alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, validation_alias="SMTP_PORT")
+    smtp_user: str | None = Field(default=None, validation_alias="SMTP_USER")
+    smtp_password: str | None = Field(default=None, validation_alias="SMTP_PASSWORD")
+    smtp_from: str | None = Field(default=None, validation_alias="SMTP_FROM")
+    smtp_use_tls: bool = Field(default=True, validation_alias="SMTP_USE_TLS")
+
+    auth_otp_ttl_seconds: int = Field(default=600, validation_alias="AUTH_OTP_TTL_SECONDS")
+    auth_otp_rate_limit_per_hour: int = Field(default=5, validation_alias="AUTH_OTP_RATE_LIMIT_PER_HOUR")
+    auth_otp_dev_expose: bool = Field(default=True, validation_alias="AUTH_OTP_DEV_EXPOSE")
+
     @property
     def resolved_sqs_endpoint_url(self) -> str | None:
         if self.sqs_endpoint_url:

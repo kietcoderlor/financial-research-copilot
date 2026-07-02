@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api.auth import router as auth_router
 from app.api.health import router as health_router
 from app.api.ingest import router as ingest_router
 from app.api.meta import router as meta_router
@@ -45,6 +46,7 @@ def create_app() -> FastAPI:
     application.add_exception_handler(RequestValidationError, validation_exception_handler)
     application.add_exception_handler(Exception, generic_exception_handler)
     application.include_router(health_router, tags=["health"])
+    application.include_router(auth_router)
     application.include_router(ingest_router)
     application.include_router(retrieve_router)
     application.include_router(query_router)

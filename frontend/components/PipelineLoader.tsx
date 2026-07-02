@@ -19,12 +19,12 @@ export function PipelineLoader({ active = true }: PipelineLoaderProps) {
               className="pipeline-dot size-2 rounded-full bg-emerald-400"
               style={{ animationDelay: `${i * 0.25}s` }}
             />
-            <span className="text-sm text-slate-300">{step}</span>
-            <span className="ml-auto font-mono text-[10px] text-slate-600">···</span>
+            <span className="text-sm text-[var(--text-secondary)]">{step}</span>
+            <span className="ml-auto font-mono text-[10px] text-[var(--text-muted)]">···</span>
           </div>
         ))}
       </div>
-      <div className="mt-5 h-1 overflow-hidden rounded-full bg-white/5">
+      <div className="mt-5 h-1 overflow-hidden rounded-full bg-[var(--border-subtle)]">
         <div className="h-full w-2/3 animate-pulse rounded-full bg-gradient-to-r from-emerald-600 to-cyan-500" />
       </div>
     </div>

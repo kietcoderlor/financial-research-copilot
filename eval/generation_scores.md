@@ -2,9 +2,9 @@
 
 - API URL: `http://localhost:8000`
 - Questions: **50**
-- Citation accuracy: **98.0%** (49/50)
+- Citation accuracy: **96.0%** (48/50)
 - Adversarial refusal rate: **100.0%** (5/5)
-- Query latency p50: **9469ms** · p95: **18615ms** (n=49)
+- Query latency p50: **3.0ms** · p95: **4ms** (n=50)
 
 
 ## Q001 (factual)
@@ -49,20 +49,19 @@
 
 ## Q011 (factual)
 - citation_valid: True
-- refused: False
-- error: `{"error":"Unknown company ticker(s): BRK.B","request_id":"9a30ad07-6d0f-4bf1-990a-608c49599bfd"}`
+- refused: True
 
 ## Q012 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q013 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q014 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q015 (factual)
 - citation_valid: True
@@ -78,7 +77,7 @@
 
 ## Q018 (comparison)
 - citation_valid: True
-- refused: False
+- refused: True
 
 ## Q019 (comparison)
 - citation_valid: True
@@ -94,14 +93,14 @@
 
 ## Q022 (synthesis)
 - citation_valid: True
-- refused: False
+- refused: True
 
 ## Q023 (synthesis)
-- citation_valid: True
+- citation_valid: False
 - refused: False
 
 ## Q024 (bull_bear)
-- citation_valid: True
+- citation_valid: False
 - refused: False
 
 ## Q025 (bull_bear)
@@ -117,7 +116,7 @@
 - refused: True
 
 ## Q028 (adversarial)
-- citation_valid: False
+- citation_valid: True
 - refused: True
 
 ## Q029 (adversarial)
@@ -126,7 +125,7 @@
 
 ## Q030 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q031 (factual)
 - citation_valid: True
@@ -154,7 +153,7 @@
 
 ## Q037 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q038 (factual)
 - citation_valid: True
@@ -162,7 +161,7 @@
 
 ## Q039 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q040 (factual)
 - citation_valid: True
@@ -174,7 +173,7 @@
 
 ## Q042 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q043 (factual)
 - citation_valid: True
@@ -186,11 +185,11 @@
 
 ## Q045 (factual)
 - citation_valid: True
-- refused: True
+- refused: False
 
 ## Q046 (comparison)
 - citation_valid: True
-- refused: False
+- refused: True
 
 ## Q047 (comparison)
 - citation_valid: True
@@ -202,7 +201,7 @@
 
 ## Q049 (synthesis)
 - citation_valid: True
-- refused: False
+- refused: True
 
 ## Q050 (adversarial)
 - citation_valid: True

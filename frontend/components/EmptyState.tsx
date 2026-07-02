@@ -1,5 +1,7 @@
 "use client";
 
+import { Stagger } from "@/components/motion/Reveal";
+
 const DEMO_QUERIES = [
   {
     title: "Single company",
@@ -25,7 +27,7 @@ type EmptyStateProps = {
 export function EmptyState({ onSelect }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
-      <div className="mb-6 flex size-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
+      <div className="mb-6 flex size-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 shadow-lg shadow-emerald-900/10">
         <svg className="size-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path
             strokeLinecap="round"
@@ -39,18 +41,20 @@ export function EmptyState({ onSelect }: EmptyStateProps) {
         Grounded answers from SEC filings and earnings transcripts — every claim linked to a source chunk.
       </p>
       <div className="mt-8 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
-        {DEMO_QUERIES.map((item) => (
-          <button
-            key={item.query}
-            type="button"
-            onClick={() => onSelect(item.query)}
-            className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-emerald-500/40 hover:bg-emerald-500/5"
-          >
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400/80">{item.title}</p>
-            <p className="mt-2 text-sm font-medium text-slate-200 group-hover:text-white">{item.query}</p>
-            <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
-          </button>
-        ))}
+        <Stagger start={1}>
+          {DEMO_QUERIES.map((item) => (
+            <button
+              key={item.query}
+              type="button"
+              onClick={() => onSelect(item.query)}
+              className="surface-card group rounded-xl p-4 text-left"
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">{item.title}</p>
+              <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">{item.query}</p>
+              <p className="mt-1 text-xs text-[var(--text-muted)]">{item.desc}</p>
+            </button>
+          ))}
+        </Stagger>
       </div>
     </div>
   );

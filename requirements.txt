@@ -21,3 +21,6 @@ beautifulsoup4>=4.12.0,<5
 lxml>=5.0.0,<6
 langchain-text-splitters>=0.2.0,<0.4
 pdfplumber>=0.11.0,<0.12
+PyJWT>=2.8.0,<3
+google-auth>=2.29.0,<3
+email-validator>=2.1.0,<3

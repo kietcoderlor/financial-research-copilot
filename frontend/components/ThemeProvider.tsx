@@ -16,14 +16,12 @@ const STORAGE_KEY = "frc-theme";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("dark");
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
     const initial = stored === "light" || stored === "dark" ? stored : "dark";
     setThemeState(initial);
     document.documentElement.setAttribute("data-theme", initial);
-    setReady(true);
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
@@ -40,10 +38,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
   }, []);
-
-  if (!ready) {
-    return <div className="min-h-screen bg-[var(--bg-base)]">{children}</div>;
-  }
 
   return <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>{children}</ThemeContext.Provider>;
 }

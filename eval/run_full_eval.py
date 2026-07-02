@@ -48,8 +48,8 @@ def main() -> None:
         "queries_gte_3_of_5": re.search(r">=3/5 relevant: \*\*(\d+)/(\d+)\*\*", retrieval),
         "citation_accuracy": _parse_pct(r"Citation accuracy: \*\*([0-9.]+%)\*\*", generation),
         "adversarial_refusal_rate": _parse_pct(r"Adversarial refusal rate: \*\*([0-9.]+%)\*\*", generation),
-        "query_latency_p50_ms": _parse_float(r"Query latency p50: \*\*(\d+)ms\*\*", generation),
-        "query_latency_p95_ms": _parse_float(r"p95: \*\*(\d+)ms\*\*", generation),
+        "query_latency_p50_ms": _parse_float(r"Query latency p50: \*\*([0-9.]+)ms\*\*", generation),
+        "query_latency_p95_ms": _parse_float(r"p95: \*\*([0-9.]+)ms\*\*", generation),
     }
     m = baseline.pop("queries_gte_3_of_5")
     if m:

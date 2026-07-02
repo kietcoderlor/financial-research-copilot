@@ -1,11 +1,9 @@
 {
   "question_count": 50,
-  "mean_precision_at_5": 0.468,
-  "queries_gte_3_of_5": "21/50",
-  "citation_accuracy": 0.98,
+  "mean_precision_at_5": 0.804,
+  "citation_accuracy": 0.96,
   "adversarial_refusal_rate": 1.0,
-  "query_latency_p50_ms": 9469,
-  "query_latency_p95_ms": 18615,
-  "measured_at": "local-docker",
-  "api_url": "http://localhost:8000"
+  "query_latency_p50_ms": 3.0,
+  "query_latency_p95_ms": 4.0,
+  "queries_gte_3_of_5": "38/50"
 }

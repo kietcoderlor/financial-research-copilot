@@ -37,9 +37,9 @@ export function MetricsBar({ metadata }: MetricsBarProps) {
       {items.map((item) => (
         <div
           key={item.label}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5"
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5"
         >
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{item.label}</span>
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{item.label}</span>
           <span className="font-mono text-xs font-medium text-emerald-300">{item.value}</span>
         </div>
       ))}
