@@ -48,9 +48,9 @@ export function EmptyState({ onSelect }: EmptyStateProps) {
   const category = CATEGORIES.find((c) => c.id === activeCategory) ?? CATEGORIES[0];
 
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-16 text-center" data-onboarding="results">
-      <div className="mb-6 flex size-14 items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10 shadow-lg shadow-emerald-900/10">
-        <svg className="size-7 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <div className="flex flex-col items-center justify-center px-4 py-14 text-center" data-onboarding="results">
+      <div className="mb-5 flex size-12 items-center justify-center rounded-md border border-[var(--border-subtle)] bg-[var(--bg-elevated)]">
+        <svg className="size-5 text-[var(--text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -58,21 +58,21 @@ export function EmptyState({ onSelect }: EmptyStateProps) {
           />
         </svg>
       </div>
-      <h2 className="text-xl font-semibold tracking-tight text-[var(--text-primary)]">Ask your research question</h2>
+      <h2 className="font-display text-xl font-semibold tracking-tight text-[var(--text-primary)]">Ask your research question</h2>
       <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--text-muted)]">
         Grounded answers from SEC filings and earnings transcripts — every claim linked to a source chunk.
       </p>
 
-      <div className="mt-6 flex flex-wrap justify-center gap-2">
+      <div className="mt-6 flex flex-wrap justify-center gap-1.5">
         {CATEGORIES.map((item) => (
           <button
             key={item.id}
             type="button"
             onClick={() => setActiveCategory(item.id)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+            className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
               activeCategory === item.id
-                ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/30"
-                : "bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                ? "bg-[var(--accent-dim)] text-[var(--accent)] ring-1 ring-[var(--accent-border)]"
+                : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]"
             }`}
           >
             {item.label}
@@ -80,16 +80,16 @@ export function EmptyState({ onSelect }: EmptyStateProps) {
         ))}
       </div>
 
-      <div className="mt-6 grid w-full max-w-2xl gap-3 sm:grid-cols-2">
+      <div className="mt-6 grid w-full max-w-2xl gap-2 sm:grid-cols-2">
         <Stagger start={1}>
           {category.queries.map((item) => (
             <button
               key={item.query}
               type="button"
               onClick={() => onSelect(item.query)}
-              className="surface-card group rounded-xl p-4 text-left"
+              className="surface-card group p-4 text-left"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-500">{category.label}</p>
+              <p className="section-kicker">{category.label}</p>
               <p className="mt-2 text-sm font-medium text-[var(--text-primary)]">{item.query}</p>
               <p className="mt-1 text-xs text-[var(--text-muted)]">{item.desc}</p>
             </button>

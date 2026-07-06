@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 import { SESSION_COOKIE, type AuthUser } from "@/lib/auth";
 
@@ -21,6 +22,12 @@ export async function setSessionCookie(token: string): Promise<void> {
   jar.set(SESSION_COOKIE, token, sessionCookieOptions());
 }
 
+export function jsonWithSessionCookie<T>(token: string, body: T, init?: ResponseInit): NextResponse {
+  const response = NextResponse.json(body, init);
+  response.cookies.set(SESSION_COOKIE, token, sessionCookieOptions());
+  return response;
+}
+
 export async function clearSessionCookie(): Promise<void> {
   const jar = await cookies();
   jar.delete(SESSION_COOKIE);
@@ -32,10 +39,18 @@ export async function getSessionToken(): Promise<string | undefined> {
 }
 
 export async function fetchCurrentUser(token: string): Promise<AuthUser | null> {
-  const upstream = await fetch(`${backendBaseUrl()}/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
-  if (!upstream.ok) return null;
-  return (await upstream.json()) as AuthUser;
+  try {
+    const upstream = await fetch(`${backendBaseUrl()}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    if (!upstream.ok) return null;
+
+    const text = await upstream.text();
+    if (!text.trim()) return null;
+
+    return JSON.parse(text) as AuthUser;
+  } catch {
+    return null;
+  }
 }

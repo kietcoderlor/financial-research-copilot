@@ -1,19 +1,39 @@
 import { NextResponse } from "next/server";
 
+import { authServiceUnavailableMessage, parseJsonResponse } from "@/lib/apiJson";
 import { backendBaseUrl } from "@/lib/backend";
-import { setSessionCookie } from "@/lib/session";
+import { jsonWithSessionCookie } from "@/lib/session";
+type TokenAuthResponse = {
+  access_token?: string;
+  user?: unknown;
+};
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = await request.json();
-  const upstream = await fetch(`${backendBaseUrl()}/auth/otp/verify`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await upstream.json();
-  if (!upstream.ok) {
-    return NextResponse.json(data, { status: upstream.status });
+  try {
+    const body = await request.json();
+    const upstream = await fetch(`${backendBaseUrl()}/auth/otp/verify`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await parseJsonResponse<TokenAuthResponse & { detail?: unknown }>(upstream);
+    if (!data) {
+      return NextResponse.json(
+        { detail: authServiceUnavailableMessage(upstream.status) },
+        { status: upstream.ok ? 502 : upstream.status || 502 },
+      );
+    }
+
+    if (!upstream.ok) {
+      return NextResponse.json(data, { status: upstream.status });
+    }
+
+    if (!data.access_token) {
+      return NextResponse.json({ detail: "Missing access token from auth service." }, { status: 502 });
+    }
+
+    return jsonWithSessionCookie(data.access_token, { user: data.user });  } catch {
+    return NextResponse.json({ detail: authServiceUnavailableMessage(503) }, { status: 503 });
   }
-  await setSessionCookie(data.access_token);
-  return NextResponse.json({ user: data.user });
 }

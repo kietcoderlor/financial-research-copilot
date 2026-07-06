@@ -330,10 +330,8 @@ export default function WorkspacePage() {
         >
           <div className="sidebar-scroll h-full overflow-y-auto overflow-x-hidden px-4 py-4 pb-10">
             <div className="flex flex-col gap-4">
-              <div className="glass-panel rounded-2xl p-4">
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">
-                  Research query
-                </p>
+              <div className="panel p-4">
+                <p className="section-kicker mb-2">Research query</p>
                 <QueryInput
                   ref={queryRef}
                   value={question}
@@ -397,20 +395,20 @@ export default function WorkspacePage() {
               ) : null}
 
               {noResults ? (
-                <div className="ui-step-enter rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-100">
+                <div className="ui-step-enter rounded-md border border-[var(--border-strong)] bg-[var(--bg-surface)] p-4 text-sm text-[var(--text-secondary)]">
                   <p>No citations returned. Try broadening filters or regenerate the answer.</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => void handleBroadenAndRetry()}
-                      className="rounded-lg border border-amber-500/40 bg-amber-500/15 px-3 py-1.5 text-xs font-medium text-amber-100 transition hover:bg-amber-500/25"
+                      className="btn-primary px-3 py-1.5 text-xs"
                     >
                       Broaden filters
                     </button>
                     <button
                       type="button"
                       onClick={() => void handleRegenerate()}
-                      className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
+                      className="btn-secondary px-3 py-1.5 text-xs"
                     >
                       Regenerate
                     </button>

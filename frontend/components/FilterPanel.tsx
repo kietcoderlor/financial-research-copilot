@@ -56,19 +56,19 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
     value.companies.length + value.doc_types.length + (value.years.length > 0 ? 1 : 0);
 
   return (
-    <section className="glass-panel rounded-2xl overflow-hidden">
+    <section className="panel overflow-hidden p-0">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center justify-between px-5 py-4 text-left"
       >
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">Scope</p>
+          <p className="section-kicker">Scope</p>
           <p className="mt-0.5 text-sm font-medium text-[var(--text-primary)]">Corpus filters</p>
         </div>
         <div className="flex items-center gap-2">
           {activeCount > 0 ? (
-            <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+            <span className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2 py-0.5 text-[10px] font-semibold text-[var(--text-secondary)]">
               {activeCount} active
             </span>
           ) : null}
@@ -100,7 +100,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                         : [];
                     onChange({ ...value, years });
                   }}
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-2 text-sm text-[var(--text-primary)] focus:border-emerald-500/40 focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-dim)]"
                 />
               </div>
               <div>
@@ -122,7 +122,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                         : [];
                     onChange({ ...value, years });
                   }}
-                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-2 text-sm text-[var(--text-primary)] focus:border-emerald-500/40 focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-2 text-sm text-[var(--text-primary)] focus:border-[var(--accent-border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-dim)]"
                 />
               </div>
             </div>
@@ -145,7 +145,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                     }}
                     className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${
                       checked
-                        ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-300"
+                        ? "border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--accent)]"
                         : "border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
@@ -160,7 +160,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="text-xs font-medium text-[var(--text-muted)]">Companies</span>
               {value.companies.length > 0 ? (
-                <span className="text-[10px] text-emerald-400">{value.companies.length} selected</span>
+                <span className="text-[10px] text-[var(--text-muted)]">{value.companies.length} selected</span>
               ) : null}
             </div>
             {tickers === null ? (
@@ -176,7 +176,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                         key={ticker}
                         type="button"
                         onClick={() => onChange({ ...value, companies: value.companies.filter((c) => c !== ticker) })}
-                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-2.5 py-1 text-xs font-semibold text-emerald-300"
+                        className="inline-flex items-center gap-1 rounded-md border border-[var(--accent-border)] bg-[var(--accent-dim)] px-2.5 py-1 text-xs font-semibold text-[var(--accent)]"
                       >
                         {ticker}
                         <span className="text-[10px] opacity-70">×</span>
@@ -189,7 +189,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                   <button
                     type="button"
                     onClick={() => setCompanyPickerOpen(true)}
-                    className="flex w-full items-center gap-2 rounded-lg border border-dashed border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-left text-xs text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
+                    className="flex w-full items-center gap-2 rounded-md border border-dashed border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-left text-xs text-[var(--text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text-primary)]"
                   >
                     <svg className="size-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z" />
@@ -219,7 +219,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                         value={companySearch}
                         onChange={(e) => setCompanySearch(e.target.value)}
                         placeholder="Type ticker symbol…"
-                        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-8 pr-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/40 focus:outline-none"
+                        className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] py-2 pl-8 pr-8 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--accent-border)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-dim)]"
                       />
                       <button
                         type="button"
@@ -238,7 +238,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                       {companySearch.trim() === "" ? (
                         <p className="px-1 py-2 text-xs text-[var(--text-muted)]">Type to filter tickers…</p>
                       ) : filteredTickers.length === 0 ? (
-                        <p className="px-1 py-2 text-xs text-[var(--text-muted)]">No match for "{companySearch}"</p>
+                        <p className="px-1 py-2 text-xs text-[var(--text-muted)]">No match for &ldquo;{companySearch}&rdquo;</p>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {filteredTickers.map((ticker) => {
@@ -255,7 +255,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
                                 }}
                                 className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition ${
                                   checked
-                                    ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300"
+                                    ? "border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--accent)]"
                                     : "border-[var(--border-subtle)] bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]"
                                 }`}
                               >
@@ -281,7 +281,7 @@ export function FilterPanel({ value, onChange }: FilterPanelProps) {
             <button
               type="button"
               onClick={() => onChange({ companies: [], years: [], doc_types: [] })}
-              className="text-xs font-medium text-emerald-400/80 hover:text-emerald-300"
+              className="text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             >
               Reset all filters
             </button>

@@ -8,7 +8,7 @@ export function Skeleton({ className = "" }: SkeletonProps) {
 
 export function MetricCardSkeleton() {
   return (
-    <div className="glass-panel rounded-2xl p-5">
+    <div className="panel p-5">
       <Skeleton className="mb-3 h-3 w-24" />
       <Skeleton className="h-8 w-20" />
     </div>
@@ -17,7 +17,7 @@ export function MetricCardSkeleton() {
 
 export function AnswerSkeleton() {
   return (
-    <div className="glass-panel space-y-3 rounded-2xl p-6 sm:p-8">
+    <div className="panel space-y-3 p-6 sm:p-7">
       <Skeleton className="h-4 w-32" />
       <Skeleton className="h-6 w-48" />
       <div className="space-y-2 pt-4">

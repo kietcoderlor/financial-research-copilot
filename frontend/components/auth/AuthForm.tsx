@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Reveal } from "@/components/motion/Reveal";
 import { SiteHeader } from "@/components/ui/SiteHeader";
+import { authServiceUnavailableMessage, parseJsonResponse } from "@/lib/apiJson";
 
 type Mode = "signin" | "signup";
 
@@ -15,7 +16,6 @@ type Props = {
 };
 
 export function AuthForm({ mode }: Props) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get("next") || "/dashboard";
 
@@ -24,10 +24,25 @@ export function AuthForm({ mode }: Props) {
   const [step, setStep] = useState<"email" | "otp">("email");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  function errorDetail(data: { detail?: unknown } | null, fallback: string): string {
+    if (!data) return authServiceUnavailableMessage();
+    const detail = data.detail;
+    if (typeof detail === "string" && detail.trim()) return detail;
+    if (Array.isArray(detail)) {
+      const first = detail[0] as { msg?: string } | undefined;
+      if (first?.msg) return first.msg;
+    }
+    return fallback;
+  }
+
   const isSignup = mode === "signup";
+  const postAuthPath = isSignup ? "/dashboard" : nextPath;
+
+  function completeAuth() {
+    window.location.assign(postAuthPath);
+  }
   const title = isSignup ? "Create your account" : "Welcome back";
   const subtitle = isSignup
     ? "Sign up with Google or verify your email with a one-time code."
@@ -42,22 +57,26 @@ export function AuthForm({ mode }: Props) {
     setLoading(true);
     setError(null);
     setMessage(null);
-    setDevOtp(null);
     try {
       const res = await fetch("/api/auth/otp/send", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: trimmed }),
       });
-      const data = await res.json();
+      const data = await parseJsonResponse<{ message?: string; detail?: unknown }>(res);
       if (!res.ok) {
-        const detail = data.detail;
-        const message = Array.isArray(detail) ? detail[0]?.msg : detail;
-        throw new Error(message || "Could not send verification code.");
+        if (res.status === 429) {
+          throw new Error(
+            errorDetail(data, "Too many code requests. Wait about an hour or try again shortly."),
+          );
+        }
+        throw new Error(errorDetail(data, "Could not send verification code."));
+      }
+      if (!data) {
+        throw new Error(authServiceUnavailableMessage(res.status));
       }
       setStep("otp");
       setMessage(data.message || "Check your inbox for the code.");
-      if (data.dev_otp) setDevOtp(data.dev_otp);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send code.");
     } finally {
@@ -74,14 +93,14 @@ export function AuthForm({ mode }: Props) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: email.trim(), code }),
       });
-      const data = await res.json();
+      const data = await parseJsonResponse<{ detail?: unknown }>(res);
       if (!res.ok) {
-        const detail = data.detail;
-        const message = Array.isArray(detail) ? detail[0]?.msg : detail;
-        throw new Error(message || "Invalid verification code.");
+        throw new Error(errorDetail(data, "Invalid verification code."));
       }
-      router.push(nextPath);
-      router.refresh();
+      if (!data) {
+        throw new Error(authServiceUnavailableMessage(res.status));
+      }
+      completeAuth();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
@@ -98,14 +117,14 @@ export function AuthForm({ mode }: Props) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ id_token: credential }),
       });
-      const data = await res.json();
+      const data = await parseJsonResponse<{ detail?: unknown }>(res);
       if (!res.ok) {
-        const detail = data.detail;
-        const message = Array.isArray(detail) ? detail[0]?.msg : detail;
-        throw new Error(message || "Google sign-in failed.");
+        throw new Error(errorDetail(data, "Google sign-in failed."));
       }
-      router.push(nextPath);
-      router.refresh();
+      if (!data) {
+        throw new Error(authServiceUnavailableMessage(res.status));
+      }
+      completeAuth();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google sign-in failed.");
     } finally {
@@ -129,7 +148,7 @@ export function AuthForm({ mode }: Props) {
           </div>
 
         <Reveal immediate delay={4}>
-          <div className="glass-panel space-y-5 rounded-2xl p-6">
+          <div className="panel space-y-5 p-6">
             <Reveal immediate delay={5}>
               <GoogleSignInButton onSuccess={googleSignIn} onError={setError} disabled={loading} />
             </Reveal>
@@ -152,7 +171,7 @@ export function AuthForm({ mode }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
-                  className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none ring-emerald-500/30 transition focus:border-emerald-500/40 focus:ring-2"
+                  className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-sm text-[var(--text-primary)] outline-none ring-[var(--accent-border)] transition focus:border-[var(--accent-border)] focus:ring-2"
                 />
                 <button
                   type="button"
@@ -168,11 +187,6 @@ export function AuthForm({ mode }: Props) {
                 <p className="text-xs text-[var(--text-muted)]">
                   Code sent to <span className="font-medium text-[var(--text-secondary)]">{email}</span>
                 </p>
-                {devOtp ? (
-                  <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-100">
-                    Dev mode OTP: <span className="font-mono font-semibold">{devOtp}</span>
-                  </p>
-                ) : null}
                 <input
                   type="text"
                   inputMode="numeric"
@@ -180,7 +194,7 @@ export function AuthForm({ mode }: Props) {
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="6-digit code"
-                  className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-center font-mono text-lg tracking-[0.3em] text-[var(--text-primary)] outline-none ring-emerald-500/30 transition focus:border-emerald-500/40 focus:ring-2"
+                  className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-2.5 text-center font-mono text-lg tracking-[0.3em] text-[var(--text-primary)] outline-none ring-[var(--accent-border)] transition focus:border-[var(--accent-border)] focus:ring-2"
                 />
                 <button
                   type="button"
@@ -195,7 +209,6 @@ export function AuthForm({ mode }: Props) {
                   onClick={() => {
                     setStep("email");
                     setCode("");
-                    setDevOtp(null);
                   }}
                   className="w-full text-xs text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
                 >
@@ -204,7 +217,7 @@ export function AuthForm({ mode }: Props) {
               </div>
             )}
 
-            {message ? <p className="text-xs text-emerald-600 dark:text-emerald-300">{message}</p> : null}
+            {message ? <p className="text-xs text-[var(--accent)]">{message}</p> : null}
             {error ? <p className="text-xs text-rose-500">{error}</p> : null}
           </div>
         </Reveal>
@@ -213,14 +226,14 @@ export function AuthForm({ mode }: Props) {
           {isSignup ? (
             <>
               Already have an account?{" "}
-              <Link href={`/auth/signin?next=${encodeURIComponent(nextPath)}`} className="text-emerald-500 hover:underline">
+              <Link href={`/auth/signin?next=${encodeURIComponent(nextPath)}`} className="text-[var(--accent)] hover:underline">
                 Sign in
               </Link>
             </>
           ) : (
             <>
               New here?{" "}
-              <Link href={`/auth/signup?next=${encodeURIComponent(nextPath)}`} className="text-emerald-500 hover:underline">
+              <Link href={`/auth/signup?next=${encodeURIComponent(nextPath)}`} className="text-[var(--accent)] hover:underline">
                 Create an account
               </Link>
             </>

@@ -11,17 +11,17 @@ type QueryHistoryPanelProps = {
 export function QueryHistoryPanel({ entries, onSelect, onClear }: QueryHistoryPanelProps) {
   if (entries.length === 0) {
     return (
-      <div className="glass-panel rounded-2xl p-4">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">History</p>
+      <div className="panel p-4">
+        <p className="section-kicker">History</p>
         <p className="mt-2 text-xs text-[var(--text-muted)]">Recent queries will appear here.</p>
       </div>
     );
   }
 
   return (
-    <div className="glass-panel rounded-2xl p-4">
+    <div className="panel p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">History</p>
+        <p className="section-kicker">History</p>
         <button type="button" onClick={onClear} className="text-[10px] font-medium text-[var(--text-muted)] hover:text-rose-400">
           Clear
         </button>

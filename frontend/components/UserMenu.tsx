@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { AuthUser } from "@/lib/auth";
+import { fetchClientSession } from "@/lib/clientSession";
 
 export function UserMenu() {
   const router = useRouter();
@@ -13,11 +14,9 @@ export function UserMenu() {
 
   useEffect(() => {
     let cancelled = false;
-    void fetch("/api/auth/session", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((data: { user: AuthUser | null }) => {
-        if (!cancelled) setUser(data.user);
-      });
+    void fetchClientSession().then((data) => {
+      if (!cancelled) setUser(data.user);
+    });
     return () => {
       cancelled = true;
     };
@@ -36,13 +35,13 @@ export function UserMenu() {
       <div className="flex items-center gap-2">
         <Link
           href="/auth/signin"
-          className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="relative z-10 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
           Sign in
         </Link>
         <Link
           href="/auth/signup"
-          className="rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-600 px-3 py-1.5 text-xs font-semibold text-white"
+          className="btn-primary relative z-10 px-3 py-1.5 text-xs"
         >
           Sign up
         </Link>
@@ -63,7 +62,7 @@ export function UserMenu() {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={user.image_url} alt="" className="size-6 rounded-full" />
         ) : (
-          <span className="flex size-6 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] font-semibold text-emerald-400">
+          <span className="flex size-6 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[10px] font-semibold text-[var(--text-secondary)]">
             {initials}
           </span>
         )}

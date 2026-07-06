@@ -22,12 +22,8 @@ export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(funct
   ref,
 ) {
   return (
-    <section className={compact ? "" : "glass-panel rounded-2xl p-5"} data-onboarding="query">
-      {!compact ? (
-        <label className="mb-3 block text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-          Research question
-        </label>
-      ) : null}
+    <section className={compact ? "" : "panel p-5"} data-onboarding="query">
+      {!compact ? <label className="section-kicker mb-3 block">Research question</label> : null}
       <textarea
         ref={ref}
         value={value}
@@ -44,7 +40,7 @@ export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(funct
         }}
         rows={compact ? 3 : 4}
         placeholder="e.g. What are Tesla's margin drivers in Q2 2024?"
-        className="w-full resize-none rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-3 text-sm leading-relaxed text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-emerald-500/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+        className="input-field resize-none px-4 py-3 text-sm leading-relaxed placeholder:text-[var(--text-muted)]"
       />
       <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
         <span>Enter · ⌘K focus</span>
@@ -55,11 +51,11 @@ export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(funct
         type="button"
         onClick={onSubmit}
         disabled={loading || value.trim().length === 0}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-900/30 transition hover:from-emerald-500 hover:to-cyan-500 disabled:cursor-not-allowed disabled:from-slate-700 disabled:to-slate-700 disabled:shadow-none"
+        className="btn-primary mt-3 flex w-full gap-2 disabled:cursor-not-allowed disabled:opacity-45"
       >
         {loading ? (
           <>
-            <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span className="size-4 animate-spin rounded-full border-2 border-[var(--btn-on-accent)]/30 border-t-[var(--btn-on-accent)]" />
             Running pipeline…
           </>
         ) : (
@@ -79,7 +75,7 @@ export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(funct
               type="button"
               key={example}
               onClick={() => onChange(example)}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
+              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text-primary)]"
             >
               {example}
             </button>
@@ -94,7 +90,7 @@ export const QueryInput = forwardRef<HTMLTextAreaElement, QueryInputProps>(funct
               type="button"
               key={example}
               onClick={() => onChange(example)}
-              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-emerald-500/30 hover:text-[var(--text-primary)]"
+              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--text-muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text-primary)]"
             >
               {example}
             </button>

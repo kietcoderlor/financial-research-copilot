@@ -23,12 +23,12 @@ function confidenceFromSignals(metadata: QueryMetadata, citationCount: number): 
 } {
   const flagCount = metadata.hallucination_flags?.length ?? 0;
   if (flagCount > 0 || citationCount === 0) {
-    return { label: "Low", tone: "text-rose-300" };
+    return { label: "Low", tone: "text-rose-400/90" };
   }
   if (citationCount >= 3 && metadata.chunks_used >= 3) {
-    return { label: "High", tone: "text-emerald-300" };
+    return { label: "High", tone: "text-[var(--accent)]" };
   }
-  return { label: "Medium", tone: "text-amber-300" };
+  return { label: "Medium", tone: "text-[var(--text-secondary)]" };
 }
 
 export function MetricsBar({ metadata, citationCount = 0 }: MetricsBarProps) {
@@ -50,20 +50,17 @@ export function MetricsBar({ metadata, citationCount = 0 }: MetricsBarProps) {
   ];
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="metrics-strip">
       {items.map((item) => (
-        <div
-          key={item.label}
-          className="inline-flex items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-3 py-1.5"
-        >
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">{item.label}</span>
-          <span className={`font-mono text-xs font-medium ${item.tone ?? "text-emerald-300"}`}>{item.value}</span>
+        <div key={item.label} className="metrics-strip-item">
+          <span className="section-kicker">{item.label}</span>
+          <span className={`font-mono text-xs font-medium ${item.tone ?? "text-[var(--text-primary)]"}`}>{item.value}</span>
         </div>
       ))}
       {metadata.hallucination_flags && metadata.hallucination_flags.length > 0 ? (
-        <div className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-400">Flags</span>
-          <span className="text-xs font-medium text-amber-200">{metadata.hallucination_flags.length}</span>
+        <div className="metrics-strip-item border-l border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+          <span className="section-kicker">Flags</span>
+          <span className="font-mono text-xs font-medium text-rose-400/90">{metadata.hallucination_flags.length}</span>
         </div>
       ) : null}
     </div>

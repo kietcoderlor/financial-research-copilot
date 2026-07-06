@@ -37,7 +37,7 @@ function highlightExcerpt(excerpt: string, terms: string[]): ReactNode {
   const isTerm = new RegExp(`^(${escaped.join("|")})$`, "i");
   return excerpt.split(re).map((part, idx) =>
     isTerm.test(part) ? (
-      <mark key={`${part}-${idx}`} className="rounded bg-emerald-500/20 px-0.5 text-emerald-200">
+      <mark key={`${part}-${idx}`} className="rounded bg-[var(--accent-dim)] px-0.5 text-[var(--accent)]">
         {part}
       </mark>
     ) : (
@@ -70,16 +70,16 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
   const activeCitation = citations.find((c) => c.index === selectedIndex) ?? citations[0];
 
   return (
-    <section className="glass-panel rounded-2xl p-6" data-onboarding="results">
-      <div className="mb-5 flex items-end justify-between gap-2 border-b border-[var(--border-subtle)] pb-4">
+    <section className="panel overflow-hidden p-0" data-onboarding="results">
+      <div className="mb-5 flex items-end justify-between gap-2 border-b border-[var(--border-subtle)] px-6 pt-6 pb-4">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">Evidence</p>
-          <h2 className="mt-1 text-lg font-semibold text-[var(--text-primary)]">Source excerpts</h2>
+          <p className="section-kicker">Evidence</p>
+          <h2 className="font-display mt-1 text-lg font-semibold text-[var(--text-primary)]">Source excerpts</h2>
         </div>
         <span className="font-mono text-xs text-[var(--text-muted)]">{citations.length} chunks</span>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 px-6 pb-6 sm:grid-cols-2">
         {citations.map((citation) => {
           const key = citation.chunk_id;
           const isOpen = Boolean(expanded[key]);
@@ -97,12 +97,12 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
                 cardRefs.current[citation.index] = node;
               }}
               onClick={() => onSelect?.(citation.index)}
-              className={`group cursor-pointer rounded-xl border bg-[var(--bg-elevated)]/60 p-4 transition hover:border-[var(--border-strong)] ${
-                isSelected ? "border-emerald-500/60 ring-2 ring-emerald-500/20" : "border-[var(--border-subtle)]"
+              className={`group cursor-pointer rounded-md border bg-[var(--bg-surface)] p-4 transition hover:border-[var(--border-strong)] ${
+                isSelected ? "border-[var(--accent-border)] ring-1 ring-[var(--accent-border)]" : "border-[var(--border-subtle)]"
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-cyan-600 text-sm font-bold text-white shadow-lg shadow-emerald-900/30">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-dim)] font-mono text-sm font-semibold text-[var(--accent)]">
                   {citation.index}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -121,7 +121,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
                 </div>
               </div>
 
-              <blockquote className="mt-3 border-l-2 border-emerald-500/50 pl-3 text-sm leading-relaxed text-[var(--text-secondary)]">
+              <blockquote className="mt-3 border-l-2 border-[var(--accent-border)] pl-3 text-sm leading-relaxed text-[var(--text-secondary)]">
                 {isOpen ? highlightExcerpt(excerpt, terms) : highlightExcerpt(preview, terms)}
               </blockquote>
 
@@ -131,7 +131,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
                   event.stopPropagation();
                   setExpanded((prev) => ({ ...prev, [key]: !isOpen }));
                 }}
-                className="mt-3 text-xs font-medium text-emerald-400/90 transition hover:text-emerald-300"
+                className="mt-3 text-xs font-medium text-[var(--text-secondary)] transition hover:text-[var(--text-primary)]"
               >
                 {isOpen ? "Collapse" : "Read full excerpt"}
               </button>
@@ -142,7 +142,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
                   target="_blank"
                   rel="noreferrer"
                   onClick={(event) => event.stopPropagation()}
-                  className="mt-2 block text-xs text-cyan-400/90 hover:text-cyan-300"
+                  className="mt-2 block text-xs text-[var(--text-muted)] underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
                 >
                   View filing →
                 </a>
@@ -153,8 +153,8 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
       </div>
 
       {activeCitation ? (
-        <div className="mt-5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-300">Source viewer</p>
+        <div className="mx-6 mb-6 rounded-md border border-[var(--accent-border)] bg-[var(--accent-dim)] p-4">
+          <p className="section-kicker text-[var(--accent)]">Source viewer</p>
           <div className="mt-2 flex items-center gap-2 text-xs text-[var(--text-muted)]">
             <span className="font-semibold text-[var(--text-primary)]">{activeCitation.company}</span>
             <span>{activeCitation.doc_type}</span>
@@ -169,7 +169,7 @@ export function CitationPanel({ citations, selectedIndex = null, onSelect, query
               href={activeCitation.source_url}
               target="_blank"
               rel="noreferrer"
-              className="mt-3 inline-block text-xs text-cyan-400 hover:text-cyan-300"
+              className="mt-3 inline-block text-xs text-[var(--text-muted)] underline-offset-2 hover:text-[var(--text-primary)] hover:underline"
             >
               Open original filing →
             </a>

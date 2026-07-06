@@ -7,7 +7,6 @@ import { Reveal, Stagger } from "@/components/motion/Reveal";
 import { MetricCard } from "@/components/ui/MetricCard";
 import { MetricCardSkeleton } from "@/components/ui/Skeleton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { Button } from "@/components/ui/Button";
 
 type CorpusSummary = {
   chunks_total: number;
@@ -131,7 +130,7 @@ export default function DashboardPage() {
         ) : null}
 
         <Reveal delay={6}>
-          <div className="glass-panel flex flex-wrap items-center justify-between gap-4 rounded-2xl p-5">
+          <div className="panel flex flex-wrap items-center justify-between gap-4 p-5">
             <div>
               <p className="text-sm font-medium text-[var(--text-primary)]">Ready to query?</p>
               <p className="text-xs text-[var(--text-muted)]">Jump into the research copilot workspace.</p>

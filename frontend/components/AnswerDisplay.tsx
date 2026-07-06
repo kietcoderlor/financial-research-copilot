@@ -38,13 +38,11 @@ export function AnswerDisplay({
     : formatCitationRefs(displayed);
 
   return (
-    <section className="glass-panel rounded-2xl p-6 sm:p-8">
+    <section className="panel p-6 sm:p-7">
       <div className="mb-5 flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] pb-4">
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
-            Synthesized answer
-          </p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight text-[var(--text-primary)]">Research brief</h2>
+          <p className="section-kicker">Synthesized answer</p>
+          <h2 className="font-display mt-1 text-lg font-semibold tracking-tight text-[var(--text-primary)]">Research brief</h2>
         </div>
         <div className="flex items-center gap-2">
           {showAnswer && !isTyping && !loading ? (
@@ -53,7 +51,7 @@ export function AnswerDisplay({
             </button>
           ) : null}
           {showAnswer ? (
-            <span className="chip-ticker border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+            <span className="chip-ticker border-[var(--accent-border)] bg-[var(--accent-dim)] text-[var(--accent)]">
               {isTyping ? "Typing…" : "Grounded"}
             </span>
           ) : null}
@@ -76,7 +74,7 @@ export function AnswerDisplay({
                       <button
                         type="button"
                         onClick={() => onCitationClick(index)}
-                        className="citation-ref mx-0.5 inline-flex min-w-[1.4rem] items-center justify-center rounded-md border border-emerald-500/40 bg-emerald-500/15 px-1 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500/25"
+                        className="citation-ref mx-0.5 inline-flex min-w-[1.4rem] items-center justify-center px-1 text-xs font-bold transition hover:text-[var(--accent-hover)]"
                         aria-label={`View source ${index}`}
                       >
                         {index}

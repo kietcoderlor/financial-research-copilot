@@ -58,8 +58,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: copilot
-    ports:
-      - "5432:5432"
+    # Host port omitted — avoids conflict with other local Postgres; API reaches postgres:5432 on the compose network.
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -70,8 +69,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # Host port omitted — avoids conflict with other local Redis; API reaches redis:6379 on the compose network.
 
   elasticmq:
     image: softwaremill/elasticmq:1.6.7

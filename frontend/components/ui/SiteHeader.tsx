@@ -19,12 +19,12 @@ type SiteHeaderProps = {
 
 type HealthState = "checking" | "ok" | "degraded";
 
-function CopilotLiveBadge({ visible = true, health = "checking" }: { visible?: boolean; health?: HealthState }) {
+function CopilotLiveBadge({ health = "checking" }: { health?: HealthState }) {
   const label = health === "degraded" ? "Degraded" : health === "ok" ? "Live" : "Checking";
   const toneClass = health === "degraded" ? "status-live-degraded" : health === "ok" ? "status-live-ok" : "status-live-checking";
 
   return (
-    <span className={`status-live ${toneClass} hidden sm:inline-flex ${visible ? "" : "invisible"}`} aria-hidden={!visible}>
+    <span className={`status-live ${toneClass} hidden sm:inline-flex`}>
       <span className="status-live-dot" />
       {label}
     </span>
@@ -67,7 +67,10 @@ export function SiteHeader({
     };
   }, []);
 
-  const defaultActions = useMemo(() => <CopilotLiveBadge visible={onCopilot} health={healthState} />, [healthState, onCopilot]);
+  const defaultActions = useMemo(
+    () => (onCopilot ? <CopilotLiveBadge health={healthState} /> : null),
+    [healthState, onCopilot],
+  );
   const headerActions = actions ?? defaultActions;
 
   return (
@@ -86,7 +89,7 @@ export function SiteHeader({
             <div />
           )}
 
-          <div className="flex shrink-0 items-center justify-end gap-2 sm:gap-3">
+          <div className="relative z-10 flex shrink-0 items-center justify-end gap-2 sm:gap-3">
             {headerActions}
             <ThemeToggle />
             <UserMenu />

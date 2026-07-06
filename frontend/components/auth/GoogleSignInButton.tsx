@@ -38,7 +38,7 @@ export function GoogleSignInButton({ onSuccess, onError, disabled }: Props) {
 
   if (!clientId) {
     return (
-      <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-100">
+      <p className="rounded-md border border-[var(--border-strong)] bg-[var(--bg-surface)] px-3 py-2 text-xs text-[var(--text-secondary)]">
         Set <code className="font-mono">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> to enable Google sign-in.
       </p>
     );

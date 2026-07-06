@@ -53,7 +53,7 @@ export function AppNav({ items = MAIN_NAV }: AppNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`block rounded-lg px-3 py-2 text-sm ${active ? "bg-[var(--accent-dim)] text-[var(--text-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"}`}
+                  className={`block rounded-lg px-3 py-2 text-sm ${active ? "bg-[var(--bg-surface)] text-[var(--text-primary)] ring-1 ring-[var(--border-strong)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"}`}
                   onClick={() => setOpen(false)}
                 >
                   {item.label}

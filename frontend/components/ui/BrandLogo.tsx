@@ -1,46 +1,42 @@
 import Link from "next/link";
 
+import { BrandMark } from "@/components/ui/BrandMark";
+
 type BrandLogoProps = {
   href?: string;
   size?: "sm" | "md";
   showText?: boolean;
 };
 
+const MARK_SIZE = { sm: 28, md: 32 } as const;
+
 export function BrandLogo({ href = "/", size = "md", showText = true }: BrandLogoProps) {
-  const box = size === "sm" ? "size-9 text-sm" : "size-10 text-sm";
-  const inner = (
-    <>
-      <div
-        className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 shadow-lg shadow-emerald-900/25 ${box}`}
-      >
-        <span className="font-bold text-white">FR</span>
-      </div>
-      {showText ? (
-        <div className="min-w-0 leading-none">
-          <p className="truncate text-sm font-semibold leading-tight tracking-tight text-[var(--text-primary)]">
-            Financial Research Copilot
-          </p>
-          <p className="truncate text-[11px] leading-tight text-[var(--text-muted)]">Citation-grounded SEC research</p>
-        </div>
-      ) : null}
-    </>
+  const markSize = MARK_SIZE[size];
+  const markShell = size === "sm" ? "brand-mark-shell-sm" : "brand-mark-shell";
+
+  const mark = (
+    <span className={markShell}>
+      <BrandMark size={markSize} />
+    </span>
   );
 
   if (!showText) {
     return (
-      <Link href={href} className="inline-flex">
-        <div
-          className={`flex items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 shadow-lg shadow-emerald-900/25 ${box}`}
-        >
-          <span className="font-bold text-white">FR</span>
-        </div>
+      <Link href={href} className="inline-flex shrink-0" aria-label="Financial Research Copilot home">
+        {mark}
       </Link>
     );
   }
 
   return (
-    <Link href={href} className="flex min-w-0 items-center gap-3">
-      {inner}
+    <Link href={href} className="flex min-w-0 items-center gap-2.5">
+      {mark}
+      <div className="min-w-0 leading-none">
+        <p className="truncate text-sm font-medium leading-tight tracking-tight text-[var(--text-primary)]">
+          Financial Research Copilot
+        </p>
+        <p className="truncate text-[11px] leading-tight text-[var(--text-muted)]">Citation-grounded SEC research</p>
+      </div>
     </Link>
   );
 }

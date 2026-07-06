@@ -11,9 +11,9 @@ type SavedNotesPanelProps = {
 
 export function SavedNotesPanel({ notes, onOpen, onDelete, onLoadMore }: SavedNotesPanelProps) {
   return (
-    <div className="glass-panel rounded-2xl p-4">
+    <div className="panel p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Saved notes</p>
+        <p className="section-kicker">Saved notes</p>
         <span className="text-[10px] text-[var(--text-muted)]">{notes.length}</span>
       </div>
       {notes.length === 0 ? (

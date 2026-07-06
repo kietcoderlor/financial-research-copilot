@@ -56,7 +56,7 @@ export function OnboardingTour({ active, onComplete }: OnboardingTourProps) {
   return (
     <div className="onboarding-overlay">
       <div className="onboarding-card">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+        <p className="section-kicker">
           Step {step + 1} of {STEPS.length}
         </p>
         <h3 className="mt-2 text-lg font-semibold text-[var(--text-primary)]">{current.title}</h3>
